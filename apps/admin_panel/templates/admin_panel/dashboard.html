@@ -1,0 +1,172 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}Boshqaruv{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Boshqaruv</h1>
+        <p class="page-subtitle">Bond Olimpiada ishtirokchilari statistikasi</p>
+    </div>
+    <a href="{% url 'admin_panel:participants' %}" class="btn btn-primary">
+        <i class="fas fa-users"></i>
+        Barcha ishtirokchilar
+    </a>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="card stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-value">{{ total_participants }}</div>
+        <div class="stat-label">Jami ishtirokchilar</div>
+    </div>
+
+    <div class="card stat-card success">
+        <div class="stat-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-value">{{ checked_in }}</div>
+        <div class="stat-label">Ro'yxatdan o'tgan</div>
+    </div>
+
+    <div class="card stat-card warning">
+        <div class="stat-icon">
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-value">{{ not_checked_in }}</div>
+        <div class="stat-label">Kutmoqda</div>
+    </div>
+
+    <div class="card stat-card secondary">
+        <div class="stat-icon">
+            <i class="fas fa-percentage"></i>
+        </div>
+        <div class="stat-value">{{ checkin_rate }}%</div>
+        <div class="stat-label">Kelish foizi</div>
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: {{ checkin_rate }}%"></div>
+        </div>
+    </div>
+
+    <div class="card stat-card" style="background: rgba(30, 41, 59, 0.8);">
+        <div class="stat-icon">
+            <i class="fas fa-language"></i>
+        </div>
+        <div class="stat-value">{{ ru_count }}</div>
+        <div class="stat-label">🇷🇺 Русский язык</div>
+    </div>
+
+    <div class="card stat-card" style="background: rgba(30, 41, 59, 0.8);">
+        <div class="stat-icon">
+            <i class="fas fa-language"></i>
+        </div>
+        <div class="stat-value">{{ uz_count }}</div>
+        <div class="stat-label">🇺🇿 O'zbek tili</div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="charts-grid">
+    <!-- By Subject -->
+    <div class="card">
+        <h3 class="card-title">
+            <i class="fas fa-book"></i> Fanlar bo'yicha
+        </h3>
+        {% for subject in by_subject %}
+        <div class="list-item">
+            <span class="list-item-label">{{ subject.name }}</span>
+            <span class="list-item-value">{{ subject.participant_count }}</span>
+        </div>
+        {% empty %}
+        <p style="color: var(--gray-400); text-align: center; padding: 20px;">Ma'lumot yo'q</p>
+        {% endfor %}
+    </div>
+
+    <!-- By Grade -->
+    <div class="card">
+        <h3 class="card-title">
+            <i class="fas fa-graduation-cap"></i> Sinflar bo'yicha
+        </h3>
+        <div class="chart-placeholder">
+            {% for grade in by_grade %}
+            <div class="chart-bar" style="height: {{ grade.count|divisibleby:1 }}0%;"
+                title="{{ grade.grade }}-sinf: {{ grade.count }}">
+            </div>
+            {% endfor %}
+        </div>
+        <div
+            style="display: flex; justify-content: space-around; margin-top: 8px; color: var(--gray-400); font-size: 12px;">
+            {% for grade in by_grade %}
+            <span>{{ grade.grade }}-sinf</span>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Row -->
+<div class="charts-grid">
+    <!-- By District -->
+    <div class="card">
+        <h3 class="card-title">
+            <i class="fas fa-map-marker-alt"></i> Top-10 tumanlar
+        </h3>
+        {% for district in by_district %}
+        <div class="list-item">
+            <span class="list-item-label">{{ district.district }}</span>
+            <span class="list-item-value">{{ district.count }}</span>
+        </div>
+        {% empty %}
+        <p style="color: var(--gray-400); text-align: center; padding: 20px;">Ma'lumot yo'q</p>
+        {% endfor %}
+    </div>
+
+    <!-- Recent Registrations -->
+    <div class="card">
+        <h3 class="card-title">
+            <i class="fas fa-user-plus"></i> So'nggi ro'yxatdan o'tganlar
+        </h3>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>F.I.O</th>
+                        <th>Maktab</th>
+                        <th>Holat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in recent_registrations %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'admin_panel:participant_detail' p.pk %}"
+                                style="color: var(--primary-light); text-decoration: none;">
+                                {{ p.fullname }}
+                            </a>
+                        </td>
+                        <td style="color: var(--gray-400);">{{ p.school|truncatechars:20 }}</td>
+                        <td>
+                            {% if p.is_checked_in %}
+                            <span class="badge badge-success">
+                                <i class="fas fa-check"></i> Keldi
+                            </span>
+                            {% else %}
+                            <span class="badge badge-warning">
+                                <i class="fas fa-clock"></i> Kutmoqda
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: var(--gray-400);">Ishtirokchilar yo'q</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

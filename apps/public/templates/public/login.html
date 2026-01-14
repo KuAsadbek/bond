@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-ru="Вход | Bond and Data" data-uz="Kirish | Bond and Data">Вход | Bond and Data</title>
+    <meta name="description" content="Вход в систему Bond and Data">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 8s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            top: -100px;
+            left: -100px;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            bottom: -50px;
+            right: -50px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-30px) scale(1.05);
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .lang-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-container img {
+            height: 60px;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 0%, #a8b4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 18px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+
+        .form-input:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-input:focus {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 6px 0 0 0;
+        }
+
+        .errorlist li {
+            color: #f5576c;
+            font-size: 12px;
+        }
+
+        .form-errors {
+            background: rgba(245, 87, 108, 0.1);
+            border: 1px solid rgba(245, 87, 108, 0.3);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-errors ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .form-errors li {
+            color: #f5576c;
+            font-size: 14px;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 25px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        .register-link a {
+            color: #a8b4ff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .lang-switcher {
+                position: static;
+                justify-content: center;
+                margin-bottom: 15px;
+            }
+
+            .lang-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 30px 25px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .lang-switcher {
+                position: static;
+                justify-content: center;
+                margin-bottom: 20px;
+                display: flex;
+            }
+
+            .lang-btn {
+                padding: 10px 18px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <div class="container">
+        <div class="lang-switcher">
+            <button class="lang-btn active" data-lang="ru" onclick="setLanguage('ru')">Русский</button>
+            <button class="lang-btn" data-lang="uz" onclick="setLanguage('uz')">O'zbek</button>
+        </div>
+
+        <div class="card">
+            <div class="logo-container">
+                <img src="{% load static %}{% static 'public/img/logo-1.png' %}" alt="Bond and Data Logo">
+            </div>
+
+            <div class="header">
+                <h1 data-ru="Вход" data-uz="Kirish">Вход</h1>
+                <p data-ru="Войдите в свой аккаунт" data-uz="Akkauntingizga kiring">Войдите в свой аккаунт</p>
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="form-errors">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <form method="post" id="login-form">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="id_username" data-ru="Логин *" data-uz="Login *">Логин *</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}{{ form.username.errors }}{% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password" data-ru="Пароль *" data-uz="Parol *">Пароль *</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}{{ form.password.errors }}{% endif %}
+                </div>
+
+                <button type="submit" class="btn-submit" data-ru="Войти" data-uz="Kirish">
+                    Войти
+                </button>
+            </form>
+
+            <div class="register-link">
+                <span data-ru="Нет аккаунта?" data-uz="Akkauntingiz yo'qmi?">Нет аккаунта?</span>
+                <a href="{% url 'public:register' %}" data-ru="Зарегистрируйтесь"
+                    data-uz="Ro'yxatdan o'ting">Зарегистрируйтесь</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setLanguage(lang) {
+            localStorage.setItem('lang', lang);
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            document.querySelectorAll('[data-ru]').forEach(el => {
+                el.textContent = el.getAttribute('data-' + lang);
+            });
+            const title = document.querySelector('title');
+            if (title && title.hasAttribute('data-' + lang)) {
+                document.title = title.getAttribute('data-' + lang);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedLang = localStorage.getItem('lang') || 'ru';
+            setLanguage(savedLang);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,14 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+<li style="margin-right: 15px;">
+    <div
+        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 10px 20px; border-radius: 8px; display: inline-flex; gap: 20px; font-size: 14px;">
+        <span><strong>🇷🇺 Русский:</strong> {{ ru_count }}</span>
+        <span><strong>🇺🇿 O'zbek:</strong> {{ uz_count }}</span>
+        <span><strong>Всего:</strong> {{ total_count }}</span>
+    </div>
+</li>
+{{ block.super }}
+{% endblock %}

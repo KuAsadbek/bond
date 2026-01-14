@@ -1,0 +1,269 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}Ishtirokchilar{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .filters {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-label {
+        display: block;
+        font-size: 12px;
+        color: var(--gray-400);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .filter-input,
+    .filter-select {
+        width: 100%;
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: var(--light);
+        font-size: 14px;
+        transition: all 0.2s ease;
+    }
+
+    .filter-input:focus,
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: rgba(99, 102, 241, 0.1);
+    }
+
+    .filter-select option {
+        background: var(--dark);
+        color: var(--light);
+    }
+
+    .filter-btn {
+        align-self: flex-end;
+    }
+
+    .participant-row {
+        cursor: pointer;
+    }
+
+    .participant-row:hover {
+        background: rgba(99, 102, 241, 0.1) !important;
+    }
+
+    .checkin-btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .checkin-btn.checked {
+        background: rgba(34, 197, 94, 0.2);
+        color: var(--success);
+    }
+
+    .checkin-btn.not-checked {
+        background: rgba(245, 158, 11, 0.2);
+        color: var(--warning);
+    }
+
+    .checkin-btn:hover {
+        transform: scale(1.05);
+    }
+
+    .results-info {
+        color: var(--gray-400);
+        font-size: 14px;
+        margin-bottom: 16px;
+    }
+
+    .phone-link {
+        color: var(--secondary);
+        text-decoration: none;
+    }
+
+    .phone-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Ishtirokchilar</h1>
+        <p class="page-subtitle">Olimpiada ishtirokchilarini boshqarish</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom: 24px;">
+    <form method="get" class="filters">
+        <div class="filter-group" style="flex: 2;">
+            <label class="filter-label">Qidirish</label>
+            <input type="text" name="search" class="filter-input" placeholder="F.I.O, maktab, telefon..." value="{{ search }}">
+        </div>
+
+        <div class="filter-group">
+            <label class="filter-label">Fan</label>
+            <select name="subject" class="filter-select">
+                <option value="">Barcha fanlar</option>
+                {% for subject in subjects %}
+                <option value="{{ subject.id }}" {% if selected_subject == subject.id|stringformat:"s" %}selected{% endif %}>
+                    {{ subject.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label class="filter-label">Sinf</label>
+            <select name="grade" class="filter-select">
+                <option value="">Barcha sinflar</option>
+                {% for i in "12345678901" %}
+                {% if forloop.counter <= 11 %}
+                <option value="{{ forloop.counter }}" {% if selected_grade == forloop.counter|stringformat:"s" %}selected{% endif %}>
+                    {{ forloop.counter }}-sinf
+                </option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label class="filter-label">Holat</label>
+            <select name="checkin" class="filter-select">
+                <option value="">Barchasi</option>
+                <option value="yes" {% if selected_checkin == 'yes' %}selected{% endif %}>Keldi</option>
+                <option value="no" {% if selected_checkin == 'no' %}selected{% endif %}>Kutmoqda</option>
+            </select>
+        </div>
+
+        <div class="filter-btn">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i> Qidirish
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Results -->
+<div class="card">
+    <p class="results-info">Topildi: <strong>{{ participants|length }}</strong> ishtirokchi</p>
+    
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>F.I.O</th>
+                    <th>Maktab</th>
+                    <th>Sinf</th>
+                    <th>Fan</th>
+                    <th>Telefon</th>
+                    <th>Holat</th>
+                    <th>Amallar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in participants %}
+                <tr class="participant-row" onclick="window.location='{% url 'admin_panel:participant_detail' p.pk %}'">
+                    <td>
+                        <strong>{{ p.fullname }}</strong>
+                    </td>
+                    <td style="color: var(--gray-400);">{{ p.school|truncatechars:25 }}</td>
+                    <td>{{ p.grade }}-sinf</td>
+                    <td>
+                        {% if p.subject %}
+                        <span class="badge badge-success">{{ p.subject.name }}</span>
+                        {% else %}
+                        <span style="color: var(--gray-500);">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="tel:{{ p.phone_number }}" class="phone-link" onclick="event.stopPropagation();">
+                            {{ p.phone_number }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if p.is_checked_in %}
+                        <span class="badge badge-success">
+                            <i class="fas fa-check"></i> Keldi
+                        </span>
+                        {% else %}
+                        <span class="badge badge-warning">
+                            <i class="fas fa-clock"></i> Kutmoqda
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td onclick="event.stopPropagation();">
+                        <button class="checkin-btn {% if p.is_checked_in %}checked{% else %}not-checked{% endif %}" 
+                                onclick="toggleCheckin('{{ p.pk }}', this)">
+                            {% if p.is_checked_in %}
+                            <i class="fas fa-user-check"></i>
+                            {% else %}
+                            <i class="fas fa-user-clock"></i>
+                            {% endif %}
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 40px; color: var(--gray-400);">
+                        <i class="fas fa-search" style="font-size: 32px; margin-bottom: 12px; display: block;"></i>
+                        Ishtirokchilar topilmadi
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+function toggleCheckin(uuid, btn) {
+    fetch(`/panel/participants/${uuid}/checkin/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.is_checked_in) {
+                btn.className = 'checkin-btn checked';
+                btn.innerHTML = '<i class="fas fa-user-check"></i>';
+            } else {
+                btn.className = 'checkin-btn not-checked';
+                btn.innerHTML = '<i class="fas fa-user-clock"></i>';
+            }
+            // Update badge in the row
+            const row = btn.closest('tr');
+            const badge = row.querySelector('.badge');
+            if (data.is_checked_in) {
+                badge.className = 'badge badge-success';
+                badge.innerHTML = '<i class="fas fa-check"></i> Keldi';
+            } else {
+                badge.className = 'badge badge-warning';
+                badge.innerHTML = '<i class="fas fa-clock"></i> Kutmoqda';
+            }
+        }
+    });
+}
+{% endblock %}
