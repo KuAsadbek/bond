@@ -11,6 +11,8 @@ from .views import (
     logout_view,
     get_districts_by_region,
     check_subscription,
+    send_verification_code,
+    verify_phone_code,
 )
 
 app_name = "public"
@@ -35,4 +37,7 @@ urlpatterns = [
         "api/districts/<int:region_id>/", get_districts_by_region, name="get_districts"
     ),
     path("api/check-subscription/", check_subscription, name="check_subscription"),
+    path("api/send-code/", send_verification_code, name="send_verification_code"),
+    path("api/verify-code/", verify_phone_code, name="verify_phone_code"),
 ]
+

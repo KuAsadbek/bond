@@ -92,3 +92,27 @@ class Participant(models.Model):
     def check_password(self, raw_password):
         """Check if the given password matches."""
         return check_password(raw_password, self.password)
+
+
+class PhoneVerification(models.Model):
+    """Model to store phone verification codes."""
+
+    phone_number = models.CharField(max_length=20, verbose_name="Номер телефона")
+    code = models.CharField(max_length=6, verbose_name="Код подтверждения")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создан")
+    is_verified = models.BooleanField(default=False, verbose_name="Подтверждён")
+
+    class Meta:
+        verbose_name = "Подтверждение телефона"
+        verbose_name_plural = "Подтверждения телефонов"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.phone_number} - {self.code}"
+
+    def is_valid(self):
+        """Check if verification code is still valid (5 min TTL)."""
+        from django.utils import timezone
+        from datetime import timedelta
+        return timezone.now() - self.created_at < timedelta(minutes=5)
+

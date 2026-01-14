@@ -6,7 +6,7 @@ import os
 import requests
 from django.conf import settings
 
-from .models import Participant
+from .models import Participant, PhoneVerification
 from .forms import ParticipantRegistrationForm, LoginForm
 from .utils import generate_ticket_pdf
 
@@ -256,3 +256,79 @@ def check_subscription(request):
     except requests.RequestException:
         return JsonResponse({"error": "telegram_api_error"}, status=500)
 
+
+def send_verification_code(request):
+    """API endpoint to send SMS verification code."""
+    if request.method != "POST":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        phone_number = data.get("phone_number", "")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "invalid_json"}, status=400)
+
+    # Validate and format phone number
+    digits = "".join(filter(str.isdigit, phone_number))
+    print(digits)
+    if digits.startswith("998"):
+        digits = digits[3:]
+    
+    if len(digits) != 9:
+        return JsonResponse({"error": "invalid_phone", "message": "Введите 9 цифр номера"}, status=400)
+
+    formatted_phone = f"+998{digits}"
+
+    # Check if phone already registered
+    if Participant.objects.filter(phone_number=formatted_phone).exists():
+        return JsonResponse({"error": "phone_exists", "message": "Этот номер уже зарегистрирован"}, status=400)
+
+    # Send verification code
+    try:
+        from .services import EskizSMS
+        sms_service = EskizSMS()
+        result = sms_service.send_verification_code(formatted_phone)
+
+        if result["success"]:
+            return JsonResponse({"success": True, "message": "Код отправлен"})
+        else:
+            return JsonResponse({"success": False, "error": result.get("error", "sms_error"), "message": result.get("error", "Ошибка отправки SMS")}, status=500)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({"success": False, "error": str(e), "message": f"Ошибка: {str(e)}"}, status=500)
+
+
+def verify_phone_code(request):
+    """API endpoint to verify SMS code."""
+    if request.method != "POST":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        phone_number = data.get("phone_number", "")
+        code = data.get("code", "")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "invalid_json"}, status=400)
+
+    # Format phone number
+    digits = "".join(filter(str.isdigit, phone_number))
+    if digits.startswith("998"):
+        digits = digits[3:]
+    formatted_phone = f"+998{digits}"
+
+    # Verify code
+    from .services import EskizSMS
+    sms_service = EskizSMS()
+    result = sms_service.verify_code(formatted_phone, code)
+
+    if result["success"]:
+        # Store verified phone in session
+        request.session["verified_phone"] = formatted_phone
+        return JsonResponse({"success": True})
+    else:
+        error = result.get("error", "unknown")
+        if error == "code_expired":
+            return JsonResponse({"success": False, "error": "code_expired", "message": "Код истёк"}, status=400)
+        else:
+            return JsonResponse({"success": False, "error": "invalid_code", "message": "Неверный код"}, status=400)

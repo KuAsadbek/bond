@@ -53,15 +53,6 @@
             animation-delay: 2s;
         }
 
-        .orb-3 {
-            width: 200px;
-            height: 200px;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            top: 50%;
-            right: 20%;
-            animation-delay: 4s;
-        }
-
         @keyframes float {
 
             0%,
@@ -84,11 +75,10 @@
         .card {
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 24px;
             padding: 40px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             animation: slideUp 0.6s ease-out;
         }
 
@@ -139,38 +129,82 @@
 
         .logo-container {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .logo-container img {
-            height: 60px;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            height: 50px;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 35px;
+            margin-bottom: 30px;
         }
 
         .header h1 {
             color: #fff;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
             margin-bottom: 8px;
             background: linear-gradient(135deg, #fff 0%, #a8b4ff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .header p {
             color: rgba(255, 255, 255, 0.6);
-            font-size: 15px;
+            font-size: 14px;
         }
 
+        /* Steps Indicator */
+        .steps-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .step-dot {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .step-dot.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .step-dot.completed {
+            background: rgba(76, 175, 80, 0.3);
+            color: #81c784;
+            border-color: #81c784;
+        }
+
+        .step-line {
+            width: 40px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            align-self: center;
+        }
+
+        .step-line.completed {
+            background: #81c784;
+        }
+
+        /* Form styles */
         .form-group {
             margin-bottom: 20px;
-            position: relative;
         }
 
         .form-group label {
@@ -198,15 +232,9 @@
             color: rgba(255, 255, 255, 0.35);
         }
 
-        .form-input:hover {
-            border-color: rgba(255, 255, 255, 0.25);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
         .form-input:focus {
             border-color: #667eea;
             background: rgba(102, 126, 234, 0.1);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
         }
 
         .form-input option {
@@ -224,10 +252,8 @@
             padding-right: 45px;
         }
 
-        /* Phone Input with Prefix */
         .phone-input-wrapper {
             display: flex;
-            gap: 0;
         }
 
         .phone-prefix {
@@ -239,7 +265,6 @@
             border: 1px solid rgba(255, 255, 255, 0.12);
             border-right: none;
             border-radius: 12px 0 0 12px;
-            white-space: nowrap;
         }
 
         .phone-input-wrapper .form-input {
@@ -247,10 +272,15 @@
             flex: 1;
         }
 
-        .btn-submit {
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
             width: 100%;
             padding: 16px;
-            margin-top: 10px;
             font-size: 16px;
             font-weight: 600;
             font-family: 'Inter', sans-serif;
@@ -260,19 +290,51 @@
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
 
-        .btn-submit:hover {
+        .btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-row .btn {
+            flex: 1;
         }
 
         .error-message {
             color: #f5576c;
             font-size: 12px;
             margin-top: 6px;
+        }
+
+        .success-message {
+            color: #81c784;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
         }
 
         .errorlist {
@@ -286,48 +348,17 @@
             font-size: 12px;
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .lang-switcher {
-                position: static;
-                justify-content: center;
-                margin-bottom: 15px;
-            }
-
-            .lang-btn {
-                padding: 10px 20px;
-                font-size: 14px;
-            }
-        }
-
         @media (max-width: 480px) {
             .card {
                 padding: 30px 25px;
-            }
-
-            .header h1 {
-                font-size: 24px;
             }
 
             .form-row {
                 grid-template-columns: 1fr;
             }
 
-            .lang-switcher {
-                position: static;
-                justify-content: center;
-                margin-bottom: 20px;
-                display: flex;
-            }
-
-            .lang-btn {
-                padding: 10px 18px;
-                font-size: 13px;
+            .btn-row {
+                flex-direction: column;
             }
         }
     </style>
@@ -336,10 +367,8 @@
 <body>
     <div class="bg-orb orb-1"></div>
     <div class="bg-orb orb-2"></div>
-    <div class="bg-orb orb-3"></div>
 
     <div class="container">
-        <!-- Language Switcher -->
         <div class="lang-switcher">
             <button class="lang-btn active" data-lang="ru" onclick="setLanguage('ru')">Русский</button>
             <button class="lang-btn" data-lang="uz" onclick="setLanguage('uz')">O'zbek</button>
@@ -352,14 +381,23 @@
 
             <div class="header">
                 <h1 data-ru="Регистрация" data-uz="Ro'yxatdan o'tish">Регистрация</h1>
-                <p data-ru="Заполните форму для участия в мероприятии"
-                    data-uz="Tadbirda ishtirok etish uchun shaklni to'ldiring">Заполните форму для участия в мероприятии
+                <p id="stepTitle" data-ru="Шаг 1: Подтверждение телефона" data-uz="1-qadam: Telefonni tasdiqlash">
+                    Шаг 1: Подтверждение телефона
                 </p>
             </div>
 
+            <!-- Steps Indicator -->
+            <div class="steps-indicator">
+                <div class="step-dot active" id="dot1">1</div>
+                <div class="step-line" id="line1"></div>
+                <div class="step-dot" id="dot2">2</div>
+                <div class="step-line" id="line2"></div>
+                <div class="step-dot" id="dot3">3</div>
+            </div>
+
             {% if form.non_field_errors %}
-            <div class="form-errors"
-                style="background: rgba(245, 87, 108, 0.1); border: 1px solid rgba(245, 87, 108, 0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px;">
+            <div
+                style="background: rgba(245, 87, 108, 0.1); border: 1px solid rgba(245, 87, 108, 0.3); border-radius: 12px; padding: 12px; margin-bottom: 20px;">
                 {{ form.non_field_errors }}
             </div>
             {% endif %}
@@ -367,109 +405,136 @@
             <form method="post" id="registration-form">
                 {% csrf_token %}
 
-                <div class="form-row">
+                <!-- STEP 1: Phone Verification -->
+                <div class="step-content active" id="step1">
                     <div class="form-group">
-                        <label for="id_username" data-ru="Логин *" data-uz="Login *">Логин *</label>
+                        <label data-ru="Номер телефона *" data-uz="Telefon raqami *">Номер телефона *</label>
+                        <div class="phone-input-wrapper">
+                            <span class="phone-prefix">+998</span>
+                            <input type="text" name="phone_number" id="id_phone_number" class="form-input"
+                                placeholder="XX XXX XX XX" maxlength="12">
+                        </div>
+                        <div id="phone-message"></div>
+                    </div>
+
+                    <button type="button" class="btn" id="sendCodeBtn" onclick="sendVerificationCode()"
+                        data-ru="📱 Отправить код" data-uz="📱 Kod yuborish">
+                        📱 Отправить код
+                    </button>
+
+                    <div class="form-group" id="codeInputGroup" style="display: none; margin-top: 20px;">
+                        <label data-ru="Код из SMS *" data-uz="SMS kodi *">Код из SMS *</label>
+                        <input type="text" id="id_verification_code" class="form-input" placeholder="000000"
+                            maxlength="6">
+                        <div id="code-message"></div>
+                        <div id="timer" style="color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 6px;"></div>
+                    </div>
+
+                    <button type="button" class="btn" id="verifyCodeBtn" style="display: none; margin-top: 10px;"
+                        onclick="verifyCode()" data-ru="✓ Подтвердить код" data-uz="✓ Kodni tasdiqlash">
+                        ✓ Подтвердить код
+                    </button>
+                </div>
+
+                <!-- STEP 2: Login & Password -->
+                <div class="step-content" id="step2">
+                    <div class="form-group">
+                        <label data-ru="Логин *" data-uz="Login *">Логин *</label>
                         {{ form.username }}
                         {% if form.username.errors %}{{ form.username.errors }}{% endif %}
                     </div>
 
                     <div class="form-group">
-                        <label for="id_fullname" data-ru="ФИО участника *" data-uz="Ishtirokchi F.I.O *">ФИО участника
-                            *</label>
-                        {{ form.fullname }}
-                        {% if form.fullname.errors %}{{ form.fullname.errors }}{% endif %}
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="id_password" data-ru="Пароль *" data-uz="Parol *">Пароль *</label>
+                        <label data-ru="Пароль *" data-uz="Parol *">Пароль *</label>
                         {{ form.password }}
                         {% if form.password.errors %}{{ form.password.errors }}{% endif %}
                     </div>
 
                     <div class="form-group">
-                        <label for="id_password_confirm" data-ru="Подтвердите пароль *"
-                            data-uz="Parolni tasdiqlang *">Подтвердите пароль *</label>
+                        <label data-ru="Подтвердите пароль *" data-uz="Parolni tasdiqlang *">Подтвердите пароль
+                            *</label>
                         {{ form.password_confirm }}
                         {% if form.password_confirm.errors %}{{ form.password_confirm.errors }}{% endif %}
                     </div>
+
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-secondary" onclick="goToStep(1)" data-ru="← Назад"
+                            data-uz="← Orqaga">← Назад</button>
+                        <button type="button" class="btn" onclick="goToStep(3)" data-ru="Далее →"
+                            data-uz="Keyingi →">Далее →</button>
+                    </div>
                 </div>
 
-                <div class="form-row">
+                <!-- STEP 3: Personal Data -->
+                <div class="step-content" id="step3">
                     <div class="form-group">
-                        <label for="id_phone_number" data-ru="Телефон *" data-uz="Telefon *">Телефон *</label>
-                        <div class="phone-input-wrapper">
-                            <span class="phone-prefix">+998</span>
-                            <input type="text" name="phone_number" id="id_phone_number" class="form-input"
-                                placeholder="XX XXX XX XX" maxlength="12" required data-placeholder-ru="XX XXX XX XX"
-                                data-placeholder-uz="XX XXX XX XX">
+                        <label data-ru="ФИО участника *" data-uz="Ishtirokchi F.I.O *">ФИО участника *</label>
+                        {{ form.fullname }}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-ru="Регион *" data-uz="Viloyat *">Регион *</label>
+                            <select name="region" id="id_region" class="form-input" required>
+                                <option value="" data-ru="Выберите регион" data-uz="Viloyatni tanlang">Выберите регион
+                                </option>
+                                {% for region in regions %}
+                                <option value="{{ region.name_uz }}" data-id="{{ region.id }}"
+                                    data-name-uz="{{ region.name_uz }}" data-name-ru="{{ region.name_ru }}">
+                                    {{ region.name_uz }}
+                                </option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        {% if form.phone_number.errors %}{{ form.phone_number.errors }}{% endif %}
+
+                        <div class="form-group">
+                            <label data-ru="Район *" data-uz="Tuman *">Район *</label>
+                            <select name="district" id="id_district" class="form-input" required disabled>
+                                <option value="" data-ru="Сначала выберите регион" data-uz="Avval viloyatni tanlang">
+                                    Сначала выберите регион
+                                </option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="id_grade" data-ru="Класс *" data-uz="Sinf *">Класс *</label>
-                        {{ form.grade }}
-                        {% if form.grade.errors %}{{ form.grade.errors }}{% endif %}
+                        <label data-ru="Школа *" data-uz="Maktab *">Школа *</label>
+                        {{ form.school }}
                     </div>
-                </div>
 
-                <div class="form-row">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label data-ru="Класс *" data-uz="Sinf *">Класс *</label>
+                            {{ form.grade }}
+                        </div>
+
+                        <div class="form-group">
+                            <label data-ru="Предмет *" data-uz="Fan *">Предмет *</label>
+                            {{ form.subject }}
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                        <label for="id_region" data-ru="Регион *" data-uz="Viloyat *">Регион *</label>
-                        <select name="region" id="id_region" class="form-input" required>
-                            <option value="" data-ru="Выберите регион" data-uz="Viloyatni tanlang">Выберите регион
-                            </option>
-                            {% for region in regions %}<option value="{{ region.name_uz }}" data-id="{{ region.id }}"
-                                data-name-uz="{{ region.name_uz }}" data-name-ru="{{ region.name_ru }}">{{
-                                region.name_uz }}</option>{% endfor %}
+                        <label data-ru="ФИО учителя *" data-uz="O'qituvchi F.I.O *">ФИО учителя *</label>
+                        {{ form.teacher_fullname }}
+                    </div>
+
+                    <div class="form-group">
+                        <label data-ru="Язык теста *" data-uz="Test tili *">Язык теста *</label>
+                        <select name="test_language" id="id_test_language" class="form-input" required>
+                            <option value="ru" data-ru="Русский" data-uz="Ruscha">Русский</option>
+                            <option value="uz" data-ru="O'zbek" data-uz="O'zbek">O'zbek</option>
                         </select>
-                        {% if form.region.errors %}{{ form.region.errors }}{% endif %}
                     </div>
 
-                    <div class="form-group">
-                        <label for="id_district" data-ru="Район *" data-uz="Tuman *">Район *</label>
-                        <select name="district" id="id_district" class="form-input" required disabled>
-                            <option value="" data-ru="Сначала выберите регион" data-uz="Avval viloyatni tanlang">Сначала
-                                выберите регион</option>
-                        </select>
-                        {% if form.district.errors %}{{ form.district.errors }}{% endif %}
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-secondary" onclick="goToStep(2)" data-ru="← Назад"
+                            data-uz="← Orqaga">← Назад</button>
+                        <button type="submit" class="btn" data-ru="Зарегистрироваться" data-uz="Ro'yxatdan o'tish">
+                            Зарегистрироваться
+                        </button>
                     </div>
                 </div>
-
-                <div class="form-group">
-                    <label for="id_school" data-ru="Школа *" data-uz="Maktab *">Школа *</label>
-                    {{ form.school }}
-                    {% if form.school.errors %}{{ form.school.errors }}{% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_teacher_fullname" data-ru="ФИО учителя *" data-uz="O'qituvchi F.I.O *">ФИО учителя
-                        *</label>
-                    {{ form.teacher_fullname }}
-                    {% if form.teacher_fullname.errors %}{{ form.teacher_fullname.errors }}{% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_subject" data-ru="Предмет *" data-uz="Fan *">Предмет *</label>
-                    {{ form.subject }}
-                    {% if form.subject.errors %}{{ form.subject.errors }}{% endif %}
-                </div>
-
-                <div class="form-group">
-                    <label for="id_test_language" data-ru="Язык теста *" data-uz="Test tili *">Язык теста *</label>
-                    <select name="test_language" id="id_test_language" class="form-input" required>
-                        <option value="ru" data-ru="Русский" data-uz="Ruscha">Русский</option>
-                        <option value="uz" data-ru="O'zbek" data-uz="O'zbek">O'zbek</option>
-                    </select>
-                    {% if form.test_language.errors %}{{ form.test_language.errors }}{% endif %}
-                </div>
-
-                <button type="submit" class="btn-submit" data-ru="Зарегистрироваться" data-uz="Ro'yxatdan o'tish">
-                    Зарегистрироваться
-                </button>
             </form>
 
             <div style="text-align: center; margin-top: 25px; color: rgba(255, 255, 255, 0.6); font-size: 14px;">
@@ -481,16 +546,21 @@
     </div>
 
     <script>
-        // Language switcher
+        let currentStep = 1;
+        let phoneVerified = false;
+        let timerInterval = null;
+
+        const stepTitles = {
+            1: { ru: "Шаг 1: Подтверждение телефона", uz: "1-qadam: Telefonni tasdiqlash" },
+            2: { ru: "Шаг 2: Логин и пароль", uz: "2-qadam: Login va parol" },
+            3: { ru: "Шаг 3: Личные данные", uz: "3-qadam: Shaxsiy ma'lumotlar" }
+        };
+
         function setLanguage(lang) {
             localStorage.setItem('lang', lang);
-
-            // Update button states
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.lang === lang);
             });
-
-            // Update all translatable elements
             document.querySelectorAll('[data-ru]').forEach(el => {
                 if (el.tagName === 'INPUT' && el.hasAttribute('data-placeholder-' + lang)) {
                     el.placeholder = el.getAttribute('data-placeholder-' + lang);
@@ -498,57 +568,214 @@
                     el.textContent = el.getAttribute('data-' + lang);
                 }
             });
+            updateStepTitle();
+        }
 
-            // Update page title
-            const title = document.querySelector('title');
-            if (title && title.hasAttribute('data-' + lang)) {
-                document.title = title.getAttribute('data-' + lang);
+        function updateStepTitle() {
+            const lang = localStorage.getItem('lang') || 'ru';
+            document.getElementById('stepTitle').textContent = stepTitles[currentStep][lang];
+        }
+
+        function goToStep(step) {
+            if (step === 2 && !phoneVerified) {
+                const lang = localStorage.getItem('lang') || 'ru';
+                document.getElementById('phone-message').className = 'error-message';
+                document.getElementById('phone-message').textContent =
+                    lang === 'uz' ? "Avval telefonni tasdiqlang" : "Сначала подтвердите телефон";
+                return;
             }
 
-            // Update region options
-            const regionSelect = document.getElementById('id_region');
-            if (regionSelect) {
-                regionSelect.querySelectorAll('option[data-name-uz]').forEach(option => {
-                    option.textContent = lang === 'uz' ? option.dataset.nameUz : option.dataset.nameRu;
-                });
+            // Validate step 2 before going to step 3
+            if (step === 3 && currentStep === 2) {
+                const username = document.querySelector('[name="username"]').value;
+                const password = document.querySelector('[name="password"]').value;
+                const passwordConfirm = document.querySelector('[name="password_confirm"]').value;
+
+                if (!username || !password || !passwordConfirm) {
+                    alert(localStorage.getItem('lang') === 'uz' ? "Barcha maydonlarni to'ldiring" : "Заполните все поля");
+                    return;
+                }
+                if (password !== passwordConfirm) {
+                    alert(localStorage.getItem('lang') === 'uz' ? "Parollar mos kelmadi" : "Пароли не совпадают");
+                    return;
+                }
             }
 
-            // Update district options
-            const districtSelect = document.getElementById('id_district');
-            if (districtSelect) {
-                districtSelect.querySelectorAll('option[data-name-uz]').forEach(option => {
-                    option.textContent = lang === 'uz' ? option.dataset.nameUz : option.dataset.nameRu;
+            currentStep = step;
+
+            // Update step content visibility
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+
+            // Update step dots
+            for (let i = 1; i <= 3; i++) {
+                const dot = document.getElementById('dot' + i);
+                dot.classList.remove('active', 'completed');
+                if (i < step) {
+                    dot.classList.add('completed');
+                    dot.innerHTML = '✓';
+                } else if (i === step) {
+                    dot.classList.add('active');
+                    dot.innerHTML = i;
+                } else {
+                    dot.innerHTML = i;
+                }
+            }
+
+            // Update lines
+            document.getElementById('line1').classList.toggle('completed', step > 1);
+            document.getElementById('line2').classList.toggle('completed', step > 2);
+
+            updateStepTitle();
+        }
+
+        async function sendVerificationCode() {
+            const phoneInput = document.getElementById('id_phone_number');
+            const sendBtn = document.getElementById('sendCodeBtn');
+            const phoneMsg = document.getElementById('phone-message');
+            const codeGroup = document.getElementById('codeInputGroup');
+            const verifyBtn = document.getElementById('verifyCodeBtn');
+            const lang = localStorage.getItem('lang') || 'ru';
+
+            const phone = phoneInput.value.replace(/\D/g, '');
+            if (phone.length !== 9) {
+                phoneMsg.className = 'error-message';
+                phoneMsg.textContent = lang === 'uz' ? "9 ta raqam kiriting" : "Введите 9 цифр номера";
+                return;
+            }
+
+            sendBtn.disabled = true;
+            sendBtn.textContent = '...';
+            phoneMsg.textContent = '';
+
+            try {
+                const response = await fetch('{% url "public:send_verification_code" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({ phone_number: phone })
                 });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    phoneMsg.className = 'success-message';
+                    phoneMsg.textContent = lang === 'uz' ? "Kod yuborildi!" : "Код отправлен!";
+                    codeGroup.style.display = 'block';
+                    verifyBtn.style.display = 'block';
+                    phoneInput.readOnly = true;
+                    startTimer(60);
+                } else {
+                    phoneMsg.className = 'error-message';
+                    phoneMsg.textContent = data.message || (lang === 'uz' ? "Xatolik" : "Ошибка");
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = lang === 'uz' ? '📱 Kod yuborish' : '📱 Отправить код';
+                }
+            } catch (error) {
+                phoneMsg.className = 'error-message';
+                phoneMsg.textContent = lang === 'uz' ? "Xatolik" : "Ошибка";
+                sendBtn.disabled = false;
+                sendBtn.textContent = lang === 'uz' ? '📱 Kod yuborish' : '📱 Отправить код';
             }
         }
 
-        // Load saved language on page load
+        async function verifyCode() {
+            const phoneInput = document.getElementById('id_phone_number');
+            const codeInput = document.getElementById('id_verification_code');
+            const verifyBtn = document.getElementById('verifyCodeBtn');
+            const codeMsg = document.getElementById('code-message');
+            const lang = localStorage.getItem('lang') || 'ru';
+
+            const phone = phoneInput.value.replace(/\D/g, '');
+            const code = codeInput.value.replace(/\D/g, '');
+
+            if (code.length !== 6) {
+                codeMsg.className = 'error-message';
+                codeMsg.textContent = lang === 'uz' ? "6 ta raqam kiriting" : "Введите 6 цифр";
+                return;
+            }
+
+            verifyBtn.disabled = true;
+            verifyBtn.textContent = '...';
+
+            try {
+                const response = await fetch('{% url "public:verify_phone_code" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({ phone_number: phone, code: code })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    phoneVerified = true;
+                    codeMsg.className = 'success-message';
+                    codeMsg.textContent = lang === 'uz' ? "✓ Tasdiqlandi!" : "✓ Подтверждено!";
+                    if (timerInterval) clearInterval(timerInterval);
+
+                    // Auto go to step 2
+                    setTimeout(() => goToStep(2), 1000);
+                } else {
+                    codeMsg.className = 'error-message';
+                    codeMsg.textContent = data.message || (lang === 'uz' ? "Noto'g'ri kod" : "Неверный код");
+                    verifyBtn.disabled = false;
+                    verifyBtn.textContent = lang === 'uz' ? '✓ Tasdiqlash' : '✓ Подтвердить код';
+                }
+            } catch (error) {
+                codeMsg.className = 'error-message';
+                codeMsg.textContent = lang === 'uz' ? "Xatolik" : "Ошибка";
+                verifyBtn.disabled = false;
+                verifyBtn.textContent = lang === 'uz' ? '✓ Tasdiqlash' : '✓ Подтвердить код';
+            }
+        }
+
+        function startTimer(seconds) {
+            const timerEl = document.getElementById('timer');
+            const sendBtn = document.getElementById('sendCodeBtn');
+            const lang = localStorage.getItem('lang') || 'ru';
+            let remaining = seconds;
+
+            timerEl.textContent = (lang === 'uz' ? "Qayta: " : "Повтор: ") + remaining + "s";
+
+            timerInterval = setInterval(() => {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(timerInterval);
+                    timerEl.textContent = '';
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = lang === 'uz' ? '📱 Qayta yuborish' : '📱 Отправить снова';
+                } else {
+                    timerEl.textContent = (lang === 'uz' ? "Qayta: " : "Повтор: ") + remaining + "s";
+                }
+            }, 1000);
+        }
+
+        // Region/District loading
         document.addEventListener('DOMContentLoaded', function () {
             const savedLang = localStorage.getItem('lang') || 'ru';
             setLanguage(savedLang);
 
-            // Format phone number as user types
             const phoneInput = document.getElementById('id_phone_number');
             if (phoneInput) {
                 phoneInput.addEventListener('input', function (e) {
                     let value = e.target.value.replace(/\D/g, '');
                     if (value.length > 9) value = value.slice(0, 9);
-
-                    // Format: XX XXX XX XX
                     let formatted = '';
                     if (value.length > 0) formatted = value.slice(0, 2);
                     if (value.length > 2) formatted += ' ' + value.slice(2, 5);
                     if (value.length > 5) formatted += ' ' + value.slice(5, 7);
                     if (value.length > 7) formatted += ' ' + value.slice(7, 9);
-
                     e.target.value = formatted;
                 });
             }
 
-            // Region/District dynamic loading
             const regionSelect = document.getElementById('id_region');
             const districtSelect = document.getElementById('id_district');
-            const savedDistrict = '{{ form.district.value|default:"" }}';
 
             if (regionSelect && districtSelect) {
                 regionSelect.addEventListener('change', function () {
@@ -561,7 +788,6 @@
                         return;
                     }
 
-                    // Fetch districts
                     fetch('/api/districts/' + regionId + '/')
                         .then(response => response.json())
                         .then(data => {
@@ -573,28 +799,12 @@
                                 const option = document.createElement('option');
                                 option.value = district.name_uz;
                                 option.textContent = lang === 'uz' ? district.name_uz : (district.name_ru || district.name_uz);
-                                option.dataset.nameUz = district.name_uz;
-                                option.dataset.nameRu = district.name_ru || district.name_uz;
                                 districtSelect.appendChild(option);
                             });
 
                             districtSelect.disabled = false;
-                        })
-                        .catch(error => {
-                            console.error('Error loading districts:', error);
                         });
                 });
-
-                // If region is already selected (form error), load districts
-                if (regionSelect.value) {
-                    regionSelect.dispatchEvent(new Event('change'));
-                    // Restore selected district after loading
-                    if (savedDistrict) {
-                        setTimeout(() => {
-                            districtSelect.value = savedDistrict;
-                        }, 500);
-                    }
-                }
             }
         });
     </script>
