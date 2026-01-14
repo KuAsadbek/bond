@@ -7,6 +7,7 @@ from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import CommandStart
 from aiogram.enums import ParseMode
 from PIL import Image
+from django.conf import settings
 from pyzbar.pyzbar import decode
 
 # Import Django models
@@ -20,9 +21,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("Starting Telegram bot..."))
 
         # Get bot token
-        bot_token = os.environ.get(
-            "TELEGRAM_BOT_TOKEN", "7898598468:AAG5A2-8d6RYKNmhUOHXfhIs2T7QtJd9AEY"
-        )
+        bot_token = settings.TELEGRAM_BOT_TOKEN
 
         # Create bot and dispatcher
         bot = Bot(token=bot_token)
@@ -39,7 +38,48 @@ class Command(BaseCommand):
         asyncio.run(dp.start_polling(bot))
 
     async def start_command(self, message: types.Message):
-        """Handle /start command."""
+        """Handle /start command with optional deep-link for account linking."""
+        # Check for deep-link parameter (participant UUID)
+        args = message.text.split()
+        
+        if len(args) > 1:
+            participant_uuid = args[1]
+            telegram_user_id = message.from_user.id
+            
+            # Try to link Telegram account
+            try:
+                participant = await asyncio.to_thread(
+                    Participant.objects.filter(id=participant_uuid).first
+                )
+                
+                if participant:
+                    # Update participant's Telegram ID
+                    participant.telegram_user_id = telegram_user_id
+                    await asyncio.to_thread(participant.save)
+                    
+                    await message.answer(
+                        f"✅ *Аккаунт успешно привязан!*\n\n"
+                        f"👤 *{participant.fullname}*\n\n"
+                        f"Теперь подпишитесь на канал и вернитесь на сайт, "
+                        f"чтобы подтвердить подписку.",
+                        parse_mode=ParseMode.MARKDOWN,
+                    )
+                    return
+                else:
+                    await message.answer(
+                        "❌ *Участник не найден*\n\n"
+                        "Проверьте ссылку и попробуйте снова.",
+                        parse_mode=ParseMode.MARKDOWN,
+                    )
+                    return
+            except Exception as e:
+                await message.answer(
+                    f"❌ *Ошибка:* {str(e)}", 
+                    parse_mode=ParseMode.MARKDOWN
+                )
+                return
+        
+        # Default welcome message
         welcome_message = (
             "👋 *Добро пожаловать!*\n\n"
             "Я бот для отметки участников мероприятия *Bond and Data*.\n\n"

@@ -7,8 +7,10 @@ from .views import (
     ProfileView,
     RatingView,
     TicketView,
+    SubscribeView,
     logout_view,
     get_districts_by_region,
+    check_subscription,
 )
 
 app_name = "public"
@@ -19,6 +21,7 @@ urlpatterns = [
     path("profile/", ProfileView.as_view(), name="profile"),
     path("ticket/", TicketView.as_view(), name="view_ticket"),
     path("rating/", RatingView.as_view(), name="rating"),
+    path("subscribe/", SubscribeView.as_view(), name="subscribe"),
     path("logout/", logout_view, name="logout"),
     path(
         "ticket/<uuid:uuid>/download/",
@@ -31,4 +34,5 @@ urlpatterns = [
     path(
         "api/districts/<int:region_id>/", get_districts_by_region, name="get_districts"
     ),
+    path("api/check-subscription/", check_subscription, name="check_subscription"),
 ]

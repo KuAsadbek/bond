@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views import View
 import json
 import os
+import requests
 from django.conf import settings
 
 from .models import Participant
@@ -114,6 +115,12 @@ class TicketView(View):
             return redirect("public:login")
 
         participant = get_object_or_404(Participant, id=participant_id)
+        
+        # Check if subscribed to Telegram channel
+        if not participant.telegram_subscribed:
+            from django.urls import reverse
+            return redirect(f"{reverse('public:subscribe')}?redirect=ticket")
+        
         return render(request, "public/ticket_view.html", {"participant": participant})
 
 
@@ -126,6 +133,11 @@ class RatingView(View):
             return redirect("public:login")
 
         participant = get_object_or_404(Participant, id=participant_id)
+        
+        # Check if subscribed to Telegram channel
+        if not participant.telegram_subscribed:
+            from django.urls import reverse
+            return redirect(f"{reverse('public:subscribe')}?redirect=rating")
 
         # Get total participants count
         total_participants = Participant.objects.count()
@@ -178,3 +190,69 @@ class ViewTicketPDFView(View):
         response["Content-Disposition"] = f'inline; filename="{filename}"'
 
         return response
+
+
+class SubscribeView(View):
+    """Page requiring Telegram channel subscription."""
+
+    def get(self, request):
+        participant_id = request.session.get("participant_id")
+        if not participant_id:
+            return redirect("public:login")
+
+        participant = get_object_or_404(Participant, id=participant_id)
+        
+        # If already subscribed, redirect to profile
+        if participant.telegram_subscribed:
+            return redirect("public:profile")
+        
+        redirect_to = request.GET.get("redirect", "ticket")
+        return render(request, "public/subscribe.html", {
+            "participant": participant,
+            "redirect_to": redirect_to
+        })
+
+
+def check_subscription(request):
+    """API endpoint to check Telegram channel subscription."""
+    participant_id = request.session.get("participant_id")
+    if not participant_id:
+        return JsonResponse({"error": "not_authenticated"}, status=401)
+
+    try:
+        participant = Participant.objects.get(id=participant_id)
+    except Participant.DoesNotExist:
+        return JsonResponse({"error": "participant_not_found"}, status=404)
+
+    # Check if we have Telegram user ID
+    if not participant.telegram_user_id:
+        return JsonResponse({"subscribed": False, "error": "no_telegram_id"})
+
+    # Check subscription via Telegram Bot API
+    bot_token = settings.TELEGRAM_BOT_TOKEN
+    channel_id = settings.TELEGRAM_CHANNEL_ID
+    user_id = participant.telegram_user_id
+
+    try:
+        url = f"https://api.telegram.org/bot{bot_token}/getChatMember"
+        response = requests.get(url, params={
+            "chat_id": channel_id,
+            "user_id": user_id
+        }, timeout=10)
+        
+        data = response.json()
+        
+        if data.get("ok"):
+            status = data.get("result", {}).get("status", "")
+            # member, administrator, creator are valid subscription statuses
+            if status in ["member", "administrator", "creator"]:
+                # Update participant's subscription status
+                participant.telegram_subscribed = True
+                participant.save()
+                return JsonResponse({"subscribed": True})
+        
+        return JsonResponse({"subscribed": False})
+    
+    except requests.RequestException:
+        return JsonResponse({"error": "telegram_api_error"}, status=500)
+

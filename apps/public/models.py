@@ -69,6 +69,14 @@ class Participant(models.Model):
     # Rating score set by admin
     score = models.IntegerField(default=0, verbose_name="Балл")
 
+    # Telegram subscription
+    telegram_user_id = models.BigIntegerField(
+        null=True, blank=True, verbose_name="Telegram ID"
+    )
+    telegram_subscribed = models.BooleanField(
+        default=False, verbose_name="Подписан на канал"
+    )
+
     class Meta:
         verbose_name = "Участник"
         verbose_name_plural = "Участники"
