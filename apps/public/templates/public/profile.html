@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-ru="Главная | Bond and Data" data-uz="Bosh sahifa | Bond and Data">Главная | Bond and Data</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -16,22 +17,285 @@
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            background: #0f0c29;
+            background: #0a0a0f;
+            overflow-x: hidden;
         }
 
-        /* Hero Header */
-        .hero {
+        /* Animated Background */
+        .bg-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #0a0a0f 50%),
+                radial-gradient(ellipse at 100% 100%, #16213e 0%, transparent 50%),
+                radial-gradient(ellipse at 0% 100%, #0f3460 0%, transparent 50%);
+        }
+
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: floatOrb 15s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+            top: -200px;
+            left: -200px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.1), rgba(245, 87, 108, 0.1));
+            bottom: -150px;
+            right: -150px;
+            animation-delay: 5s;
+        }
+
+        .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(9, 9, 121, 0.08));
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 2.5s;
+        }
+
+        @keyframes floatOrb {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -30px) scale(1.05);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.95);
+            }
+        }
+
+        /* Stars Background */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.3), transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.2), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.4), transparent),
+                radial-gradient(2px 2px at 130px 80px, rgba(255, 255, 255, 0.2), transparent),
+                radial-gradient(1px 1px at 160px 120px, rgba(255, 255, 255, 0.3), transparent);
+            background-repeat: repeat;
+            background-size: 200px 150px;
+            animation: twinkle 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% {
+                opacity: 0.5;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Main Content */
+        .main-content {
             position: relative;
-            height: 100vh;
-            min-height: 600px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            background-size: 200% 200%;
-            animation: gradientShift 10s ease infinite;
+            z-index: 1;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        @keyframes gradientShift {
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 40px;
+        }
+
+        .logo {
+            height: 45px;
+            filter: drop-shadow(0 4px 15px rgba(102, 126, 234, 0.3));
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .lang-switcher {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* User Menu */
+        .user-menu {
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 46px;
+            height: 46px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            font-size: 18px;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            background: rgba(20, 20, 35, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .user-menu:hover .dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(102, 126, 234, 0.15);
+            color: #fff;
+        }
+
+        .dropdown-item.danger {
+            color: #ff6b6b;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .dropdown-item.danger:hover {
+            background: rgba(255, 107, 107, 0.15);
+        }
+
+        /* Hero Section */
+        .hero {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 40px 60px;
+            text-align: center;
+        }
+
+        .greeting {
+            margin-bottom: 15px;
+        }
+
+        .greeting-label {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .greeting-name {
+            font-size: 52px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #667eea 50%, #764ba2 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientText 5s ease infinite;
+            margin-bottom: 5px;
+        }
+
+        @keyframes gradientText {
 
             0%,
             100% {
@@ -43,338 +307,269 @@
             }
         }
 
-        .hero::before {
+        /* Event Card */
+        .event-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 24px;
+            padding: 35px 45px;
+            margin: 30px 0 40px;
+            max-width: 650px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #667eea);
+            background-size: 300% 100%;
+            animation: shimmer 3s linear infinite;
         }
 
-        /* Nav Header */
-        .nav-header {
-            position: relative;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
+        @keyframes shimmer {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 300% 50%;
+            }
         }
 
-        .logo {
-            height: 45px;
-            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
-        }
-
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .lang-btns {
-            display: flex;
-            gap: 5px;
-        }
-
-        .lang-btn {
-            padding: 8px 14px;
-            font-size: 12px;
-            font-weight: 600;
-            font-family: 'Inter', sans-serif;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.8);
-            transition: all 0.2s;
-        }
-
-        .lang-btn:hover,
-        .lang-btn.active {
-            background: rgba(255, 255, 255, 0.25);
-            color: #fff;
-        }
-
-        /* User Dropdown */
-        .user-dropdown {
-            position: relative;
-        }
-
-        .user-icon {
-            width: 44px;
-            height: 44px;
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 18px;
-        }
-
-        .user-icon:hover {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 10px;
-            background: rgba(30, 27, 60, 0.98);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            min-width: 180px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.2s ease;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        .user-dropdown:hover .dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 14px 18px;
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .dropdown-item:first-child {
-            border-radius: 12px 12px 0 0;
-        }
-
-        .dropdown-item:last-child {
-            border-radius: 0 0 12px 12px;
-        }
-
-        .dropdown-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-        }
-
-        .dropdown-item.logout {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: #ff8a80;
-        }
-
-        .dropdown-item.logout:hover {
-            background: rgba(244, 67, 54, 0.15);
-        }
-
-        /* Hero Content */
-        .hero-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .welcome-text {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .welcome-text h1 {
-            color: #fff;
-            font-size: 48px;
+        .event-title {
+            font-size: 26px;
             font-weight: 700;
+            color: #fff;
             margin-bottom: 15px;
-            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
-        .welcome-text p {
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 18px;
-            font-weight: 400;
+        .event-meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .event-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 15px;
+        }
+
+        .event-meta-item .icon {
+            font-size: 20px;
+        }
+
+        /* Countdown */
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .countdown-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 18px 22px;
+            min-width: 85px;
+            transition: all 0.3s ease;
+        }
+
+        .countdown-item:hover {
+            background: rgba(102, 126, 234, 0.15);
+            border-color: rgba(102, 126, 234, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .countdown-number {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #a8b4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .countdown-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 6px;
         }
 
         /* Action Cards */
-        .action-cards {
+        .actions {
             display: flex;
-            gap: 25px;
+            gap: 20px;
             flex-wrap: wrap;
             justify-content: center;
             max-width: 700px;
         }
 
         .action-card {
-            width: 280px;
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            flex: 1;
+            min-width: 280px;
+            max-width: 320px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px;
             padding: 35px 30px;
-            text-align: center;
             text-decoration: none;
-            color: #fff;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .action-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            background: rgba(255, 255, 255, 0.18);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: translateY(-8px);
+            border-color: rgba(102, 126, 234, 0.4);
+            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.2);
+        }
+
+        .action-card:hover::before {
+            opacity: 1;
         }
 
         .action-icon {
-            font-size: 56px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
             margin-bottom: 20px;
-            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover .action-icon {
+            transform: scale(1.1) rotate(-5deg);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.4) 0%, rgba(118, 75, 162, 0.4) 100%);
         }
 
         .action-title {
             font-size: 20px;
             font-weight: 700;
+            color: #fff;
             margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
         }
 
         .action-desc {
             font-size: 14px;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .action-arrow {
+            position: absolute;
+            right: 25px;
+            bottom: 25px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover .action-arrow {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            transform: translateX(5px);
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .nav-header {
-                padding: 15px 20px;
-            }
-
-            .logo {
-                height: 35px;
-            }
-
-            .welcome-text h1 {
-                font-size: 32px;
-            }
-
-            .welcome-text p {
-                font-size: 16px;
-            }
-
-            .action-cards {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .action-card {
-                width: 100%;
-                max-width: 320px;
-            }
-        }
-
-        /* Countdown styles */
-        .countdown-section {
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 30px 40px;
-            margin-bottom: 40px;
-            text-align: center;
-            max-width: 600px;
-        }
-
-        .event-title {
-            color: #fff;
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .event-info {
-            color: rgba(255, 255, 255, 0.85);
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .event-info .location {
-            margin-top: 5px;
-        }
-
-        .countdown-boxes {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .countdown-box {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 16px;
-            padding: 15px 12px;
-            min-width: 75px;
-        }
-
-        .countdown-number {
-            font-size: 36px;
-            font-weight: 700;
-            color: #fff;
-            line-height: 1;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .countdown-label {
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.7);
-            text-transform: uppercase;
-            margin-top: 5px;
-        }
-
-        .event-started {
-            color: #81c784;
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        @media (max-width: 480px) {
-            .countdown-section {
+            .nav {
                 padding: 20px;
-                margin-bottom: 30px;
             }
 
-            .countdown-boxes {
-                gap: 10px;
+            .greeting-name {
+                font-size: 36px;
             }
 
-            .countdown-box {
-                min-width: 60px;
-                padding: 12px 10px;
+            .event-card {
+                padding: 25px 20px;
+                margin: 20px 15px 30px;
+            }
+
+            .event-meta {
+                gap: 15px;
+            }
+
+            .countdown-item {
+                min-width: 70px;
+                padding: 14px 16px;
             }
 
             .countdown-number {
+                font-size: 32px;
+            }
+
+            .actions {
+                padding: 0 15px;
+            }
+
+            .action-card {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .lang-switcher {
+                display: none;
+            }
+
+            .greeting-name {
                 font-size: 28px;
             }
 
-            .countdown-label {
-                font-size: 9px;
+            .event-title {
+                font-size: 20px;
             }
 
-            .lang-btns {
-                display: none;
+            .countdown-item {
+                min-width: 60px;
+                padding: 12px 14px;
+            }
+
+            .countdown-number {
+                font-size: 26px;
             }
         }
     </style>
@@ -383,24 +578,32 @@
 <body>
     {% load static %}
 
-    <div class="hero">
-        <!-- Navigation Header -->
-        <nav class="nav-header">
+    <div class="bg-container">
+        <div class="bg-gradient"></div>
+        <div class="stars"></div>
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+    </div>
+
+    <div class="main-content">
+        <!-- Navigation -->
+        <nav class="nav">
             <img src="{% static 'public/img/logo-1.png' %}" alt="Bond and Data" class="logo">
 
             <div class="nav-right">
-                <div class="lang-btns">
+                <div class="lang-switcher">
                     <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">RU</button>
                     <button class="lang-btn" data-lang="uz" onclick="setLanguage('uz')">UZ</button>
                 </div>
 
-                <div class="user-dropdown">
-                    <div class="user-icon">👤</div>
-                    <div class="dropdown-menu">
+                <div class="user-menu">
+                    <div class="user-avatar">👤</div>
+                    <div class="dropdown">
                         <a href="{% url 'public:settings' %}" class="dropdown-item">
                             ⚙️ <span data-ru="Настройки" data-uz="Sozlamalar">Настройки</span>
                         </a>
-                        <a href="{% url 'public:logout' %}" class="dropdown-item logout">
+                        <a href="{% url 'public:logout' %}" class="dropdown-item danger">
                             🚪 <span data-ru="Выйти" data-uz="Chiqish">Выйти</span>
                         </a>
                     </div>
@@ -408,34 +611,44 @@
             </div>
         </nav>
 
-        <!-- Hero Content -->
-        <div class="hero-content">
-            <div class="welcome-text">
-                <h1 data-ru="Добро пожаловать!" data-uz="Xush kelibsiz!">Добро пожаловать!</h1>
-                <p>{{ participant.fullname }}</p>
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="greeting">
+                <div class="greeting-label" data-ru="Добро пожаловать" data-uz="Xush kelibsiz">Добро пожаловать</div>
+                <div class="greeting-name">{{ participant.fullname }}</div>
             </div>
 
             {% if olympiad %}
-            <div class="countdown-section">
+            <div class="event-card">
                 <div class="event-title">{{ olympiad.event_name }}</div>
-                <div class="event-info">
-                    <div>📅 {{ olympiad.event_date|date:"d.m.Y" }} | ⏰ {{ olympiad.event_date|time:"H:i" }}</div>
-                    <div class="location">📍 {{ olympiad.location }}</div>
+                <div class="event-meta">
+                    <div class="event-meta-item">
+                        <span class="icon">📅</span>
+                        <span>{{ olympiad.event_date|date:"d.m.Y" }}</span>
+                    </div>
+                    <div class="event-meta-item">
+                        <span class="icon">⏰</span>
+                        <span>{{ olympiad.event_date|time:"H:i" }}</span>
+                    </div>
+                    <div class="event-meta-item">
+                        <span class="icon">📍</span>
+                        <span>{{ olympiad.location }}</span>
+                    </div>
                 </div>
-                <div class="countdown-boxes" id="countdown">
-                    <div class="countdown-box">
+                <div class="countdown" id="countdown">
+                    <div class="countdown-item">
                         <div class="countdown-number" id="days">--</div>
                         <div class="countdown-label" data-ru="дней" data-uz="kun">дней</div>
                     </div>
-                    <div class="countdown-box">
+                    <div class="countdown-item">
                         <div class="countdown-number" id="hours">--</div>
                         <div class="countdown-label" data-ru="часов" data-uz="soat">часов</div>
                     </div>
-                    <div class="countdown-box">
+                    <div class="countdown-item">
                         <div class="countdown-number" id="minutes">--</div>
                         <div class="countdown-label" data-ru="минут" data-uz="daqiqa">минут</div>
                     </div>
-                    <div class="countdown-box">
+                    <div class="countdown-item">
                         <div class="countdown-number" id="seconds">--</div>
                         <div class="countdown-label" data-ru="секунд" data-uz="soniya">секунд</div>
                     </div>
@@ -443,18 +656,20 @@
             </div>
             {% endif %}
 
-            <div class="action-cards">
+            <div class="actions">
                 <a href="{% url 'public:view_ticket' %}" class="action-card">
                     <div class="action-icon">🎫</div>
                     <div class="action-title" data-ru="Мой билет" data-uz="Mening chiptam">Мой билет</div>
                     <div class="action-desc" data-ru="Просмотр и скачивание" data-uz="Ko'rish va yuklab olish">Просмотр
                         и скачивание</div>
+                    <div class="action-arrow">→</div>
                 </a>
 
                 <a href="{% url 'public:rating' %}" class="action-card">
                     <div class="action-icon">🏆</div>
                     <div class="action-title" data-ru="Рейтинг" data-uz="Reyting">Рейтинг</div>
                     <div class="action-desc" data-ru="Таблица лидеров" data-uz="Liderlar jadvali">Таблица лидеров</div>
+                    <div class="action-arrow">→</div>
                 </a>
             </div>
         </div>
@@ -485,7 +700,7 @@
 
                 if (diff <= 0) {
                     document.getElementById('countdown').innerHTML =
-                        '<div class="event-started" data-ru="🎉 Олимпиада началась!" data-uz="🎉 Olimpiada boshlandi!">🎉 Олимпиада началась!</div>';
+                        '<div style="font-size: 24px; color: #81c784; font-weight: 700;" data-ru="🎉 Олимпиада началась!" data-uz="🎉 Olimpiada boshlandi!">🎉 Олимпиада началась!</div>';
                     setLanguage(localStorage.getItem('lang') || 'ru');
                     return;
                 }
