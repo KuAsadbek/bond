@@ -381,3 +381,103 @@ def change_password(request):
 
     return JsonResponse({"success": True, "message": "Пароль успешно изменён"})
 
+
+class ForgotPasswordView(View):
+    """Forgot password page view with phone verification."""
+
+    def get(self, request):
+        # If already logged in, redirect to profile
+        if "participant_id" in request.session:
+            return redirect("public:profile")
+        return render(request, "public/forgot_password.html")
+
+
+def send_password_reset_code(request):
+    """API endpoint to send SMS code for password reset."""
+    if request.method != "POST":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        phone_number = data.get("phone_number", "")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "invalid_json"}, status=400)
+
+    # Validate and format phone number
+    digits = "".join(filter(str.isdigit, phone_number))
+    if digits.startswith("998"):
+        digits = digits[3:]
+    
+    if len(digits) != 9:
+        return JsonResponse({"error": "invalid_phone", "message": "Введите 9 цифр номера"}, status=400)
+
+    formatted_phone = f"+998{digits}"
+
+    # Check if phone is registered (opposite of send_verification_code)
+    if not Participant.objects.filter(phone_number=formatted_phone).exists():
+        return JsonResponse({"error": "phone_not_found", "message": "Этот номер не зарегистрирован"}, status=400)
+
+    # Send verification code
+    try:
+        from .services import EskizSMS
+        sms_service = EskizSMS()
+        result = sms_service.send_verification_code(formatted_phone)
+
+        if result["success"]:
+            return JsonResponse({"success": True, "message": "Код отправлен"})
+        else:
+            return JsonResponse({"success": False, "error": result.get("error", "sms_error"), "message": result.get("error", "Ошибка отправки SMS")}, status=500)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({"success": False, "error": str(e), "message": f"Ошибка: {str(e)}"}, status=500)
+
+
+def reset_password_with_phone(request):
+    """API endpoint to reset password after phone verification."""
+    if request.method != "POST":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        phone_number = data.get("phone_number", "")
+        code = data.get("code", "")
+        new_password = data.get("new_password", "")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "invalid_json"}, status=400)
+
+    if not phone_number or not code or not new_password:
+        return JsonResponse({"success": False, "message": "Заполните все поля"}, status=400)
+
+    # Format phone number
+    digits = "".join(filter(str.isdigit, phone_number))
+    if digits.startswith("998"):
+        digits = digits[3:]
+    formatted_phone = f"+998{digits}"
+
+    # Verify code first
+    from .services import EskizSMS
+    sms_service = EskizSMS()
+    result = sms_service.verify_code(formatted_phone, code)
+
+    if not result["success"]:
+        error = result.get("error", "unknown")
+        if error == "code_expired":
+            return JsonResponse({"success": False, "error": "code_expired", "message": "Код истёк"}, status=400)
+        else:
+            return JsonResponse({"success": False, "error": "invalid_code", "message": "Неверный код"}, status=400)
+
+    # Find participant and reset password
+    try:
+        participant = Participant.objects.get(phone_number=formatted_phone)
+    except Participant.DoesNotExist:
+        return JsonResponse({"success": False, "message": "Пользователь не найден"}, status=404)
+
+    if len(new_password) < 4:
+        return JsonResponse({"success": False, "message": "Пароль должен быть минимум 4 символа"}, status=400)
+
+    participant.set_password(new_password)
+    participant.save()
+
+    return JsonResponse({"success": True, "message": "Пароль успешно изменён"})
+

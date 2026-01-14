@@ -349,6 +349,11 @@
                 </button>
             </form>
 
+            <div class="register-link" style="margin-top: 15px;">
+                <a href="{% url 'public:forgot_password' %}" data-ru="Забыли пароль?"
+                    data-uz="Parolingizni unutdingizmi?">Забыли пароль?</a>
+            </div>
+
             <div class="register-link">
                 <span data-ru="Нет аккаунта?" data-uz="Akkauntingiz yo'qmi?">Нет аккаунта?</span>
                 <a href="{% url 'public:register' %}" data-ru="Зарегистрируйтесь"

@@ -9,12 +9,15 @@ from .views import (
     RatingView,
     TicketView,
     SubscribeView,
+    ForgotPasswordView,
     logout_view,
     get_districts_by_region,
     check_subscription,
     send_verification_code,
     verify_phone_code,
     change_password,
+    send_password_reset_code,
+    reset_password_with_phone,
 )
 
 app_name = "public"
@@ -43,6 +46,9 @@ urlpatterns = [
     path("api/send-code/", send_verification_code, name="send_verification_code"),
     path("api/verify-code/", verify_phone_code, name="verify_phone_code"),
     path("api/change-password/", change_password, name="change_password"),
+    path("forgot-password/", ForgotPasswordView.as_view(), name="forgot_password"),
+    path("api/send-reset-code/", send_password_reset_code, name="send_reset_code"),
+    path("api/reset-password/", reset_password_with_phone, name="reset_password"),
 ]
 
 
