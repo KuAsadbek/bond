@@ -38,9 +38,19 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: radial-gradient(ellipse at 50% 0%, #1a1a2e 0%, #0a0a0f 50%),
-                radial-gradient(ellipse at 100% 100%, #16213e 0%, transparent 50%),
-                radial-gradient(ellipse at 0% 100%, #0f3460 0%, transparent 50%);
+            background-image: url('/static/public/img/img-bg.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .bg-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(10, 10, 15, 0.7) 0%, rgba(10, 10, 15, 0.85) 100%);
         }
 
         .floating-orb {
@@ -580,7 +590,7 @@
 
     <div class="bg-container">
         <div class="bg-gradient"></div>
-        <div class="stars"></div>
+        <div class="bg-overlay"></div>
         <div class="floating-orb orb-1"></div>
         <div class="floating-orb orb-2"></div>
         <div class="floating-orb orb-3"></div>
