@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-ru="Профиль | Bond and Data" data-uz="Profil | Bond and Data">Профиль | Bond and Data</title>
-    <meta name="description" content="Профиль участника Bond and Data">
+    <title data-ru="Главная | Bond and Data" data-uz="Bosh sahifa | Bond and Data">Главная | Bond and Data</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -17,381 +16,331 @@
         body {
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            background: #0f0c29;
+        }
+
+        /* Hero Header */
+        .hero {
             position: relative;
-            overflow-x: hidden;
+            height: 100vh;
+            min-height: 600px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 10s ease infinite;
+            display: flex;
+            flex-direction: column;
         }
 
-        .bg-orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
-            animation: float 8s ease-in-out infinite;
-            z-index: 0;
-        }
-
-        .orb-1 {
-            width: 400px;
-            height: 400px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            top: -100px;
-            left: -100px;
-        }
-
-        .orb-2 {
-            width: 300px;
-            height: 300px;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            bottom: -50px;
-            right: -50px;
-            animation-delay: 2s;
-        }
-
-        .orb-3 {
-            width: 200px;
-            height: 200px;
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            top: 50%;
-            right: 20%;
-            animation-delay: 4s;
-        }
-
-        @keyframes float {
+        @keyframes gradientShift {
 
             0%,
             100% {
-                transform: translateY(0) scale(1);
+                background-position: 0% 50%;
             }
 
             50% {
-                transform: translateY(-30px) scale(1.05);
+                background-position: 100% 50%;
             }
         }
 
-        .container {
-            width: 100%;
-            max-width: 550px;
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+        }
+
+        /* Nav Header */
+        .nav-header {
             position: relative;
-            z-index: 1;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 24px;
-            padding: 40px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            animation: slideUp 0.6s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .lang-switcher {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 8px;
             z-index: 100;
-        }
-
-        .lang-btn {
-            padding: 8px 16px;
-            font-size: 13px;
-            font-weight: 600;
-            font-family: 'Inter', sans-serif;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: rgba(255, 255, 255, 0.08);
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .lang-btn:hover {
-            background: rgba(255, 255, 255, 0.15);
-            color: #fff;
-        }
-
-        .lang-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #fff;
-            border-color: transparent;
-        }
-
-        .logo-container {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .logo-container img {
-            height: 50px;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            color: #fff;
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #fff 0%, #a8b4ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .header p {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 15px;
-        }
-
-        .success-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(76, 175, 80, 0.15);
-            border: 1px solid rgba(76, 175, 80, 0.3);
-            color: #81c784;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-            margin-top: 10px;
-        }
-
-        .success-badge::before {
-            content: '✓';
-            font-weight: bold;
-        }
-
-        .profile-info {
-            margin-top: 25px;
-        }
-
-        .info-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 20px 40px;
         }
 
-        .info-item:last-child {
-            border-bottom: none;
+        .logo {
+            height: 45px;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
         }
 
-        .info-label {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        .info-value {
-            color: #fff;
-            font-size: 14px;
-            font-weight: 500;
-            text-align: right;
-        }
-
-        .btn-primary {
-            display: inline-flex;
+        .nav-right {
+            display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 16px;
-            margin-top: 25px;
-            font-size: 16px;
+            gap: 15px;
+        }
+
+        .lang-btns {
+            display: flex;
+            gap: 5px;
+        }
+
+        .lang-btn {
+            padding: 8px 14px;
+            font-size: 12px;
             font-weight: 600;
             font-family: 'Inter', sans-serif;
-            color: #fff;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.2s;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        .lang-btn:hover,
+        .lang-btn.active {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
         }
 
-        .btn-secondary {
-            display: inline-flex;
+        /* User Dropdown */
+        .user-dropdown {
+            position: relative;
+        }
+
+        .user-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            width: 100%;
-            padding: 14px;
-            margin-top: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            font-family: 'Inter', sans-serif;
-            color: rgba(255, 255, 255, 0.7);
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 18px;
         }
 
-        .btn-secondary:hover {
+        .user-icon:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: rgba(30, 27, 60, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .user-dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .dropdown-item:first-child {
+            border-radius: 12px 12px 0 0;
+        }
+
+        .dropdown-item:last-child {
+            border-radius: 0 0 12px 12px;
+        }
+
+        .dropdown-item:hover {
             background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
             color: #fff;
         }
 
-        .status-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 500;
+        .dropdown-item.logout {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ff8a80;
         }
 
-        .checked-in-badge {
-            background: rgba(76, 175, 80, 0.15);
-            color: #81c784;
+        .dropdown-item.logout:hover {
+            background: rgba(244, 67, 54, 0.15);
         }
 
-        .not-checked-badge {
-            background: rgba(255, 193, 7, 0.15);
-            color: #ffd54f;
+        /* Hero Content */
+        .hero-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .welcome-text {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .welcome-text h1 {
+            color: #fff;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .welcome-text p {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 18px;
+            font-weight: 400;
+        }
+
+        /* Action Cards */
+        .action-cards {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 700px;
+        }
+
+        .action-card {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 35px 30px;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .action-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(255, 255, 255, 0.18);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .action-icon {
+            font-size: 56px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
+        }
+
+        .action-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .action-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-header {
+                padding: 15px 20px;
+            }
+
+            .logo {
+                height: 35px;
+            }
+
+            .welcome-text h1 {
+                font-size: 32px;
+            }
+
+            .welcome-text p {
+                font-size: 16px;
+            }
+
+            .action-cards {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .action-card {
+                width: 100%;
+                max-width: 320px;
+            }
         }
 
         @media (max-width: 480px) {
-            .card {
-                padding: 30px 25px;
-            }
-
-            .header h1 {
-                font-size: 22px;
-            }
-
-            .info-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 4px;
-            }
-
-            .info-value {
-                text-align: left;
-            }
-
-            .lang-switcher {
-                top: -45px;
+            .lang-btns {
+                display: none;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="bg-orb orb-1"></div>
-    <div class="bg-orb orb-2"></div>
-    <div class="bg-orb orb-3"></div>
+    {% load static %}
 
-    <div class="container">
-        <div class="lang-switcher">
-            <button class="lang-btn active" data-lang="ru" onclick="setLanguage('ru')">Русский</button>
-            <button class="lang-btn" data-lang="uz" onclick="setLanguage('uz')">O'zbek</button>
-        </div>
+    <div class="hero">
+        <!-- Navigation Header -->
+        <nav class="nav-header">
+            <img src="{% static 'public/img/logo-1.png' %}" alt="Bond and Data" class="logo">
 
-        <div class="card">
-            <div class="logo-container">
-                {% load static %}
-                <img src="{% static 'public/img/logo-1.png' %}" alt="Bond and Data Logo">
+            <div class="nav-right">
+                <div class="lang-btns">
+                    <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">RU</button>
+                    <button class="lang-btn" data-lang="uz" onclick="setLanguage('uz')">UZ</button>
+                </div>
+
+                <div class="user-dropdown">
+                    <div class="user-icon">👤</div>
+                    <div class="dropdown-menu">
+                        <a href="{% url 'public:settings' %}" class="dropdown-item">
+                            ⚙️ <span data-ru="Настройки" data-uz="Sozlamalar">Настройки</span>
+                        </a>
+                        <a href="{% url 'public:logout' %}" class="dropdown-item logout">
+                            🚪 <span data-ru="Выйти" data-uz="Chiqish">Выйти</span>
+                        </a>
+                    </div>
+                </div>
             </div>
+        </nav>
 
-            <div class="header">
+        <!-- Hero Content -->
+        <div class="hero-content">
+            <div class="welcome-text">
                 <h1 data-ru="Добро пожаловать!" data-uz="Xush kelibsiz!">Добро пожаловать!</h1>
                 <p>{{ participant.fullname }}</p>
-                <span class="success-badge" data-ru="Регистрация успешна"
-                    data-uz="Ro'yxatdan o'tish muvaffaqiyatli">Регистрация успешна</span>
             </div>
 
-            <div class="profile-info">
-                <div class="info-item">
-                    <span class="info-label" data-ru="Логин" data-uz="Login">Логин</span>
-                    <span class="info-value">{{ participant.username }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label" data-ru="Телефон" data-uz="Telefon">Телефон</span>
-                    <span class="info-value">{{ participant.phone_number }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label" data-ru="Район" data-uz="Tuman">Район</span>
-                    <span class="info-value">{{ participant.district }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label" data-ru="Школа" data-uz="Maktab">Школа</span>
-                    <span class="info-value">{{ participant.school }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label" data-ru="Класс" data-uz="Sinf">Класс</span>
-                    <span class="info-value">{{ participant.grade }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label" data-ru="Учитель" data-uz="O'qituvchi">Учитель</span>
-                    <span class="info-value">{{ participant.teacher_fullname }}</span>
-                </div>
-                {% if participant.subject %}
-                <div class="info-item">
-                    <span class="info-label" data-ru="Предмет" data-uz="Fan">Предмет</span>
-                    <span class="info-value">{{ participant.subject.name }}</span>
-                </div>
-                {% endif %}
-                <div class="info-item">
-                    <span class="info-label" data-ru="Статус" data-uz="Holat">Статус</span>
-                    <span class="info-value">
-                        {% if participant.is_checked_in %}
-                        <span class="status-badge checked-in-badge" data-ru="✓ Отмечен" data-uz="✓ Belgilangan">✓
-                            Отмечен</span>
-                        {% else %}
-                        <span class="status-badge not-checked-badge" data-ru="Ожидается"
-                            data-uz="Kutilmoqda">Ожидается</span>
-                        {% endif %}
-                    </span>
-                </div>
+            <div class="action-cards">
+                <a href="{% url 'public:view_ticket' %}" class="action-card">
+                    <div class="action-icon">🎫</div>
+                    <div class="action-title" data-ru="Мой билет" data-uz="Mening chiptam">Мой билет</div>
+                    <div class="action-desc" data-ru="Просмотр и скачивание" data-uz="Ko'rish va yuklab olish">Просмотр
+                        и скачивание</div>
+                </a>
+
+                <a href="{% url 'public:rating' %}" class="action-card">
+                    <div class="action-icon">🏆</div>
+                    <div class="action-title" data-ru="Рейтинг" data-uz="Reyting">Рейтинг</div>
+                    <div class="action-desc" data-ru="Таблица лидеров" data-uz="Liderlar jadvali">Таблица лидеров</div>
+                </a>
             </div>
-
-            <a href="{% url 'public:view_ticket' %}" class="btn-primary" data-ru="🎫 Посмотреть билет"
-                data-uz="🎫 Chiptani ko'rish">
-                🎫 Посмотреть билет
-            </a>
-
-            <a href="{% url 'public:rating' %}" class="btn-primary"
-                style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" data-ru="🏆 Рейтинг участников"
-                data-uz="🏆 Ishtirokchilar reytingi">
-                🏆 Рейтинг участников
-            </a>
-
-            <a href="{% url 'public:logout' %}" class="btn-secondary" data-ru="Выйти" data-uz="Chiqish">
-                Выйти
-            </a>
         </div>
     </div>
 
@@ -404,11 +353,8 @@
             document.querySelectorAll('[data-ru]').forEach(el => {
                 el.textContent = el.getAttribute('data-' + lang);
             });
-            const title = document.querySelector('title');
-            if (title && title.hasAttribute('data-' + lang)) {
-                document.title = title.getAttribute('data-' + lang);
-            }
         }
+
         document.addEventListener('DOMContentLoaded', function () {
             const savedLang = localStorage.getItem('lang') || 'ru';
             setLanguage(savedLang);

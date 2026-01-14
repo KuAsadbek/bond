@@ -99,6 +99,18 @@ class ProfileView(View):
         return render(request, "public/profile.html", {"participant": participant})
 
 
+class SettingsView(View):
+    """Settings page view for user profile settings."""
+
+    def get(self, request):
+        participant_id = request.session.get("participant_id")
+        if not participant_id:
+            return redirect("public:login")
+
+        participant = get_object_or_404(Participant, id=participant_id)
+        return render(request, "public/settings.html", {"participant": participant})
+
+
 def logout_view(request):
     """Logout and redirect to login page."""
     if "participant_id" in request.session:
@@ -332,3 +344,40 @@ def verify_phone_code(request):
             return JsonResponse({"success": False, "error": "code_expired", "message": "Код истёк"}, status=400)
         else:
             return JsonResponse({"success": False, "error": "invalid_code", "message": "Неверный код"}, status=400)
+
+
+def change_password(request):
+    """API endpoint to change user password."""
+    if request.method != "POST":
+        return JsonResponse({"error": "method_not_allowed"}, status=405)
+
+    participant_id = request.session.get("participant_id")
+    if not participant_id:
+        return JsonResponse({"error": "not_authenticated"}, status=401)
+
+    try:
+        participant = Participant.objects.get(id=participant_id)
+    except Participant.DoesNotExist:
+        return JsonResponse({"error": "participant_not_found"}, status=404)
+
+    try:
+        data = json.loads(request.body)
+        current_password = data.get("current_password", "")
+        new_password = data.get("new_password", "")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "invalid_json"}, status=400)
+
+    if not current_password or not new_password:
+        return JsonResponse({"success": False, "message": "Заполните все поля"}, status=400)
+
+    if not participant.check_password(current_password):
+        return JsonResponse({"success": False, "message": "Неверный текущий пароль"}, status=400)
+
+    if len(new_password) < 4:
+        return JsonResponse({"success": False, "message": "Пароль должен быть минимум 4 символа"}, status=400)
+
+    participant.set_password(new_password)
+    participant.save()
+
+    return JsonResponse({"success": True, "message": "Пароль успешно изменён"})
+

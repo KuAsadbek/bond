@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-ru="Настройки | Bond and Data" data-uz="Sozlamalar | Bond and Data">Настройки | Bond and Data</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto 30px;
+            padding: 0 10px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        .page-title {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #a8b4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .lang-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .lang-btn {
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.2s;
+        }
+
+        .lang-btn:hover,
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .section-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Info Grid */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+        }
+
+        .info-value {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: rgba(76, 175, 80, 0.15);
+            color: #81c784;
+        }
+
+        .status-pending {
+            background: rgba(255, 193, 7, 0.15);
+            color: #ffd54f;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .message-success {
+            background: rgba(76, 175, 80, 0.15);
+            color: #81c784;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .message-error {
+            background: rgba(244, 67, 54, 0.15);
+            color: #ef9a9a;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .phone-input-wrapper {
+            display: flex;
+        }
+
+        .phone-prefix {
+            padding: 14px 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            background: rgba(102, 126, 234, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-right: none;
+            border-radius: 10px 0 0 10px;
+        }
+
+        .phone-input-wrapper .form-input {
+            border-radius: 0 10px 10px 0;
+        }
+
+        @media (max-width: 600px) {
+            .header {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+
+            .page-title {
+                order: -1;
+                width: 100%;
+                text-align: center;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    {% load static %}
+
+    <div class="header">
+        <a href="{% url 'public:profile' %}" class="back-btn">
+            ← <span data-ru="Назад" data-uz="Orqaga">Назад</span>
+        </a>
+        <h1 class="page-title" data-ru="Настройки" data-uz="Sozlamalar">Настройки</h1>
+        <div class="lang-btns">
+            <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">RU</button>
+            <button class="lang-btn" data-lang="uz" onclick="setLanguage('uz')">UZ</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Personal Info -->
+        <div class="section-card">
+            <div class="section-title">
+                <span>📋</span>
+                <span data-ru="Личные данные" data-uz="Shaxsiy ma'lumotlar">Личные данные</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label" data-ru="ФИО" data-uz="F.I.O">ФИО</span>
+                <span class="info-value">{{ participant.fullname }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label" data-ru="Логин" data-uz="Login">Логин</span>
+                <span class="info-value">{{ participant.username }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label" data-ru="Телефон" data-uz="Telefon">Телефон</span>
+                <span class="info-value">{{ participant.phone_number }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label" data-ru="Регион" data-uz="Viloyat">Регион</span>
+                <span class="info-value">{{ participant.region }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label" data-ru="Район" data-uz="Tuman">Район</span>
+                <span class="info-value">{{ participant.district }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label" data-ru="Школа" data-uz="Maktab">Школа</span>
+                <span class="info-value">{{ participant.school }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label" data-ru="Класс" data-uz="Sinf">Класс</span>
+                <span class="info-value">{{ participant.grade }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label" data-ru="Учитель" data-uz="O'qituvchi">Учитель</span>
+                <span class="info-value">{{ participant.teacher_fullname }}</span>
+            </div>
+            {% if participant.subject %}
+            <div class="info-row">
+                <span class="info-label" data-ru="Предмет" data-uz="Fan">Предмет</span>
+                <span class="info-value">{{ participant.subject.name }}</span>
+            </div>
+            {% endif %}
+            <div class="info-row">
+                <span class="info-label" data-ru="Статус" data-uz="Holat">Статус</span>
+                <span class="info-value">
+                    {% if participant.is_checked_in %}
+                    <span class="status-badge status-success">✓ <span data-ru="Отмечен"
+                            data-uz="Belgilangan">Отмечен</span></span>
+                    {% else %}
+                    <span class="status-badge status-pending"><span data-ru="Ожидается"
+                            data-uz="Kutilmoqda">Ожидается</span></span>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Phone Verification -->
+        <div class="section-card">
+            <div class="section-title">
+                <span>📱</span>
+                <span data-ru="Подтверждение телефона" data-uz="Telefonni tasdiqlash">Подтверждение телефона</span>
+            </div>
+
+            {% if participant.telegram_user_id %}
+            <div class="message message-success">
+                ✓ <span data-ru="Телефон подтверждён" data-uz="Telefon tasdiqlangan">Телефон подтверждён</span>
+            </div>
+            {% else %}
+            <div id="phoneVerifySection">
+                <div class="form-group">
+                    <label class="form-label" data-ru="Текущий номер" data-uz="Joriy raqam">Текущий номер</label>
+                    <div class="phone-input-wrapper">
+                        <span class="phone-prefix">+998</span>
+                        <input type="text" class="form-input" value="{{ participant.phone_number|slice:'4:' }}"
+                            readonly>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="sendPhoneCode()" id="sendPhoneCodeBtn"
+                    data-ru="📱 Отправить код" data-uz="📱 Kod yuborish">
+                    📱 Отправить код
+                </button>
+                <div id="phoneCodeSection" style="display: none; margin-top: 16px;">
+                    <div class="form-group">
+                        <label class="form-label" data-ru="Код из SMS" data-uz="SMS kodi">Код из SMS</label>
+                        <input type="text" id="phone_code" class="form-input" placeholder="000000" maxlength="6">
+                    </div>
+                    <button class="btn btn-primary" onclick="verifyPhoneCode()" id="verifyPhoneCodeBtn"
+                        data-ru="✓ Подтвердить" data-uz="✓ Tasdiqlash">
+                        ✓ Подтвердить
+                    </button>
+                    <div id="phoneTimer"
+                        style="color: rgba(255,255,255,0.5); font-size: 12px; text-align: center; margin-top: 10px;">
+                    </div>
+                </div>
+                <div id="phoneMessage" style="margin-top: 12px;"></div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Change Password -->
+        <div class="section-card">
+            <div class="section-title">
+                <span>🔐</span>
+                <span data-ru="Изменить пароль" data-uz="Parolni o'zgartirish">Изменить пароль</span>
+            </div>
+            <form id="changePasswordForm">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" data-ru="Текущий пароль" data-uz="Joriy parol">Текущий пароль</label>
+                    <input type="password" name="current_password" class="form-input" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" data-ru="Новый пароль" data-uz="Yangi parol">Новый пароль</label>
+                        <input type="password" name="new_password" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" data-ru="Подтвердите" data-uz="Tasdiqlang">Подтвердите</label>
+                        <input type="password" name="confirm_password" class="form-input" required>
+                    </div>
+                </div>
+                <div id="passwordMessage" style="margin-bottom: 12px;"></div>
+                <button type="submit" class="btn btn-primary" data-ru="Сохранить пароль" data-uz="Parolni saqlash">
+                    Сохранить пароль
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function setLanguage(lang) {
+            localStorage.setItem('lang', lang);
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            document.querySelectorAll('[data-ru]').forEach(el => {
+                el.textContent = el.getAttribute('data-' + lang);
+            });
+        }
+
+        let phoneTimerInterval = null;
+
+        async function sendPhoneCode() {
+            const btn = document.getElementById('sendPhoneCodeBtn');
+            const section = document.getElementById('phoneCodeSection');
+            const msg = document.getElementById('phoneMessage');
+            const lang = localStorage.getItem('lang') || 'ru';
+
+            btn.disabled = true;
+            btn.textContent = '...';
+            msg.innerHTML = '';
+
+            try {
+                const response = await fetch('{% url "public:send_verification_code" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({ phone_number: '{{ participant.phone_number }}' })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    msg.innerHTML = '<div class="message message-success">' +
+                        (lang === 'uz' ? 'Kod yuborildi!' : 'Код отправлен!') + '</div>';
+                    section.style.display = 'block';
+                    startPhoneTimer(60);
+                } else {
+                    msg.innerHTML = '<div class="message message-error">' + (data.message || 'Error') + '</div>';
+                    btn.disabled = false;
+                    btn.textContent = lang === 'uz' ? '📱 Kod yuborish' : '📱 Отправить код';
+                }
+            } catch (e) {
+                msg.innerHTML = '<div class="message message-error">Error</div>';
+                btn.disabled = false;
+                btn.textContent = lang === 'uz' ? '📱 Kod yuborish' : '📱 Отправить код';
+            }
+        }
+
+        async function verifyPhoneCode() {
+            const btn = document.getElementById('verifyPhoneCodeBtn');
+            const code = document.getElementById('phone_code').value;
+            const msg = document.getElementById('phoneMessage');
+            const lang = localStorage.getItem('lang') || 'ru';
+
+            if (code.length !== 6) {
+                msg.innerHTML = '<div class="message message-error">' +
+                    (lang === 'uz' ? '6 ta raqam kiriting' : 'Введите 6 цифр') + '</div>';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = '...';
+
+            try {
+                const response = await fetch('{% url "public:verify_phone_code" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({
+                        phone_number: '{{ participant.phone_number }}',
+                        code: code
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    msg.innerHTML = '<div class="message message-success">' +
+                        (lang === 'uz' ? '✓ Tasdiqlandi!' : '✓ Подтверждено!') + '</div>';
+                    if (phoneTimerInterval) clearInterval(phoneTimerInterval);
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    msg.innerHTML = '<div class="message message-error">' + (data.message || 'Error') + '</div>';
+                    btn.disabled = false;
+                    btn.textContent = lang === 'uz' ? '✓ Tasdiqlash' : '✓ Подтвердить';
+                }
+            } catch (e) {
+                msg.innerHTML = '<div class="message message-error">Error</div>';
+                btn.disabled = false;
+            }
+        }
+
+        function startPhoneTimer(seconds) {
+            const timerEl = document.getElementById('phoneTimer');
+            const btn = document.getElementById('sendPhoneCodeBtn');
+            const lang = localStorage.getItem('lang') || 'ru';
+            let remaining = seconds;
+
+            timerEl.textContent = (lang === 'uz' ? 'Qayta: ' : 'Повтор: ') + remaining + 's';
+
+            phoneTimerInterval = setInterval(() => {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(phoneTimerInterval);
+                    timerEl.textContent = '';
+                    btn.disabled = false;
+                    btn.textContent = lang === 'uz' ? '📱 Qayta' : '📱 Повторить';
+                } else {
+                    timerEl.textContent = (lang === 'uz' ? 'Qayta: ' : 'Повтор: ') + remaining + 's';
+                }
+            }, 1000);
+        }
+
+        // Change Password Form
+        document.getElementById('changePasswordForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const form = this;
+            const msg = document.getElementById('passwordMessage');
+            const lang = localStorage.getItem('lang') || 'ru';
+            const btn = form.querySelector('button[type="submit"]');
+
+            const currentPassword = form.current_password.value;
+            const newPassword = form.new_password.value;
+            const confirmPassword = form.confirm_password.value;
+
+            if (newPassword !== confirmPassword) {
+                msg.innerHTML = '<div class="message message-error">' +
+                    (lang === 'uz' ? 'Parollar mos kelmadi' : 'Пароли не совпадают') + '</div>';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = '...';
+
+            try {
+                const response = await fetch('{% url "public:change_password" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({
+                        current_password: currentPassword,
+                        new_password: newPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    msg.innerHTML = '<div class="message message-success">' +
+                        (lang === 'uz' ? '✓ Parol o\'zgartirildi!' : '✓ Пароль изменён!') + '</div>';
+                    form.reset();
+                } else {
+                    msg.innerHTML = '<div class="message message-error">' + (data.message || 'Error') + '</div>';
+                }
+            } catch (e) {
+                msg.innerHTML = '<div class="message message-error">Error</div>';
+            }
+
+            btn.disabled = false;
+            btn.textContent = lang === 'uz' ? 'Parolni saqlash' : 'Сохранить пароль';
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedLang = localStorage.getItem('lang') || 'ru';
+            setLanguage(savedLang);
+        });
+    </script>
+</body>
+
+</html>

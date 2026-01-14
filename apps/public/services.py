@@ -58,7 +58,8 @@ class EskizSMS:
             
             result = response.json()
             
-            if response.status_code == 200 and result.get("status") == "success":
+            # Eskiz API returns "waiting" status when SMS is queued for delivery
+            if response.status_code == 200 and result.get("status") in ("success", "waiting"):
                 return {"success": True, "message_id": result.get("id")}
             else:
                 return {"success": False, "error": result.get("message", "Unknown error")}

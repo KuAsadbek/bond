@@ -5,6 +5,7 @@ from .views import (
     ViewTicketPDFView,
     LoginView,
     ProfileView,
+    SettingsView,
     RatingView,
     TicketView,
     SubscribeView,
@@ -13,6 +14,7 @@ from .views import (
     check_subscription,
     send_verification_code,
     verify_phone_code,
+    change_password,
 )
 
 app_name = "public"
@@ -21,6 +23,7 @@ urlpatterns = [
     path("", RegisterView.as_view(), name="register"),
     path("login/", LoginView.as_view(), name="login"),
     path("profile/", ProfileView.as_view(), name="profile"),
+    path("settings/", SettingsView.as_view(), name="settings"),
     path("ticket/", TicketView.as_view(), name="view_ticket"),
     path("rating/", RatingView.as_view(), name="rating"),
     path("subscribe/", SubscribeView.as_view(), name="subscribe"),
@@ -39,5 +42,8 @@ urlpatterns = [
     path("api/check-subscription/", check_subscription, name="check_subscription"),
     path("api/send-code/", send_verification_code, name="send_verification_code"),
     path("api/verify-code/", verify_phone_code, name="verify_phone_code"),
+    path("api/change-password/", change_password, name="change_password"),
 ]
+
+
 
