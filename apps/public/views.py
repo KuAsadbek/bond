@@ -6,7 +6,7 @@ import os
 import requests
 from django.conf import settings
 
-from .models import Participant, PhoneVerification
+from .models import Participant, PhoneVerification, OlympiadSettings
 from .forms import ParticipantRegistrationForm, LoginForm
 from .utils import generate_ticket_pdf
 
@@ -41,8 +41,13 @@ class RegisterView(View):
             return redirect("public:profile")
         form = ParticipantRegistrationForm()
         regions = load_regions()
+        olympiad = OlympiadSettings.get_active()
         return render(
-            request, "public/register.html", {"form": form, "regions": regions}
+            request, "public/register.html", {
+                "form": form, 
+                "regions": regions,
+                "olympiad": olympiad
+            }
         )
 
     def post(self, request):
@@ -53,8 +58,13 @@ class RegisterView(View):
             request.session["participant_id"] = str(participant.id)
             return redirect("public:profile")
         regions = load_regions()
+        olympiad = OlympiadSettings.get_active()
         return render(
-            request, "public/register.html", {"form": form, "regions": regions}
+            request, "public/register.html", {
+                "form": form, 
+                "regions": regions,
+                "olympiad": olympiad
+            }
         )
 
 
@@ -96,7 +106,11 @@ class ProfileView(View):
             return redirect("public:login")
 
         participant = get_object_or_404(Participant, id=participant_id)
-        return render(request, "public/profile.html", {"participant": participant})
+        olympiad = OlympiadSettings.get_active()
+        return render(request, "public/profile.html", {
+            "participant": participant,
+            "olympiad": olympiad
+        })
 
 
 class SettingsView(View):
@@ -133,7 +147,11 @@ class TicketView(View):
             from django.urls import reverse
             return redirect(f"{reverse('public:subscribe')}?redirect=ticket")
         
-        return render(request, "public/ticket_view.html", {"participant": participant})
+        olympiad = OlympiadSettings.get_active()
+        return render(request, "public/ticket_view.html", {
+            "participant": participant,
+            "olympiad": olympiad
+        })
 
 
 class RatingView(View):

@@ -27,7 +27,8 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             font-family: 'DejaVuSans', 'Helvetica', 'Arial', sans-serif;
             margin: 0;
             padding: 0;
@@ -275,10 +276,20 @@
                             <td class="info-label">Telefon</td>
                             <td class="info-value">{{ participant.phone_number }}</td>
                         </tr>
+                        {% if olympiad %}
                         <tr>
-                            <td class="info-label">O'qituvchi</td>
-                            <td class="info-value">{{ participant.teacher_fullname }}</td>
+                            <td class="info-label">Sana</td>
+                            <td class="info-value" style="color: #ffd700;">{{ olympiad.event_date|date:"d.m.Y" }}</td>
                         </tr>
+                        <tr>
+                            <td class="info-label">Vaqt</td>
+                            <td class="info-value" style="color: #ffd700;">{{ olympiad.event_date|time:"H:i" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="info-label">Manzil</td>
+                            <td class="info-value" style="color: #00bfff;">{{ olympiad.location }}</td>
+                        </tr>
+                        {% endif %}
                         {% if participant.subject %}
                         <tr>
                             <td class="info-label">Fan</td>

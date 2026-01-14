@@ -38,6 +38,7 @@ def image_to_base64(path: str) -> str:
 
 def generate_ticket_pdf(participant) -> bytes:
     """Generate PDF ticket with QR code for participant using WeasyPrint."""
+    from .models import OlympiadSettings
 
     # Generate QR code
     qr_bytes = generate_qr_code(str(participant.id))
@@ -53,6 +54,9 @@ def generate_ticket_pdf(participant) -> bytes:
     font_path = str(fonts_dir / "DejaVuSans.ttf")
     font_bold_path = str(fonts_dir / "DejaVuSans-Bold.ttf")
 
+    # Get olympiad settings
+    olympiad = OlympiadSettings.get_active()
+
     # Prepare context for template
     context = {
         "participant": participant,
@@ -62,6 +66,7 @@ def generate_ticket_pdf(participant) -> bytes:
         "logo2_base64": logo2_base64,
         "font_path": font_path,
         "font_bold_path": font_bold_path,
+        "olympiad": olympiad,
     }
 
     # Render HTML template

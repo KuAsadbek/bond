@@ -360,6 +360,98 @@
             .btn-row {
                 flex-direction: column;
             }
+
+            .countdown-section {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+
+            .countdown-boxes {
+                gap: 8px;
+            }
+
+            .countdown-box {
+                min-width: 55px;
+                padding: 10px 8px;
+            }
+
+            .countdown-number {
+                font-size: 22px;
+            }
+
+            .countdown-label {
+                font-size: 9px;
+            }
+        }
+
+        /* Countdown styles */
+        .countdown-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .event-title {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 0%, #a8b4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .event-info {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .event-info .location {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 5px;
+        }
+
+        .countdown-boxes {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .countdown-box {
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 12px 10px;
+            min-width: 65px;
+        }
+
+        .countdown-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .countdown-label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .event-started {
+            color: #81c784;
+            font-size: 16px;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -373,6 +465,34 @@
             <button class="lang-btn active" data-lang="ru" onclick="setLanguage('ru')">Русский</button>
             <button class="lang-btn" data-lang="uz" onclick="setLanguage('uz')">O'zbek</button>
         </div>
+
+        {% if olympiad %}
+        <div class="countdown-section">
+            <div class="event-title">{{ olympiad.event_name }}</div>
+            <div class="event-info">
+                <div>📅 {{ olympiad.event_date|date:"d.m.Y" }} | ⏰ {{ olympiad.event_date|time:"H:i" }}</div>
+                <div class="location">📍 {{ olympiad.location }}</div>
+            </div>
+            <div class="countdown-boxes" id="countdown">
+                <div class="countdown-box">
+                    <div class="countdown-number" id="days">--</div>
+                    <div class="countdown-label" data-ru="дней" data-uz="kun">дней</div>
+                </div>
+                <div class="countdown-box">
+                    <div class="countdown-number" id="hours">--</div>
+                    <div class="countdown-label" data-ru="часов" data-uz="soat">часов</div>
+                </div>
+                <div class="countdown-box">
+                    <div class="countdown-number" id="minutes">--</div>
+                    <div class="countdown-label" data-ru="минут" data-uz="daqiqa">минут</div>
+                </div>
+                <div class="countdown-box">
+                    <div class="countdown-number" id="seconds">--</div>
+                    <div class="countdown-label" data-ru="секунд" data-uz="soniya">секунд</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         <div class="card">
             <div class="logo-container">
@@ -806,6 +926,36 @@
                         });
                 });
             }
+
+            // Countdown timer
+            {% if olympiad %}
+            const eventDate = new Date("{{ olympiad.event_date|date:'c' }}");
+
+            function updateCountdown() {
+                const now = new Date();
+                const diff = eventDate - now;
+
+                if (diff <= 0) {
+                    document.getElementById('countdown').innerHTML =
+                        '<div class="event-started" data-ru="🎉 Олимпиада началась!" data-uz="🎉 Olimpiada boshlandi!">🎉 Олимпиада началась!</div>';
+                    setLanguage(localStorage.getItem('lang') || 'ru');
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('days').textContent = String(days).padStart(2, '0');
+                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+            {% endif %}
         });
     </script>
 </body>

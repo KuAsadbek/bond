@@ -116,3 +116,54 @@ class PhoneVerification(models.Model):
         from datetime import timedelta
         return timezone.now() - self.created_at < timedelta(minutes=5)
 
+
+class OlympiadSettings(models.Model):
+    """Singleton model for olympiad event settings."""
+
+    event_name = models.CharField(
+        max_length=255, 
+        default="BOND Olimpiadasi", 
+        verbose_name="Название мероприятия"
+    )
+    event_date = models.DateTimeField(
+        verbose_name="Дата и время начала"
+    )
+    location = models.CharField(
+        max_length=500, 
+        verbose_name="Место проведения"
+    )
+    address = models.TextField(
+        blank=True, 
+        verbose_name="Адрес"
+    )
+    description = models.TextField(
+        blank=True, 
+        verbose_name="Описание"
+    )
+    is_active = models.BooleanField(
+        default=True, 
+        verbose_name="Активно"
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True, 
+        verbose_name="Создано"
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True, 
+        verbose_name="Обновлено"
+    )
+
+    class Meta:
+        verbose_name = "Настройки олимпиады"
+        verbose_name_plural = "Настройки олимпиады"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.event_name} - {self.event_date.strftime('%d.%m.%Y %H:%M')}"
+
+    @classmethod
+    def get_active(cls):
+        """Get the active olympiad settings."""
+        return cls.objects.filter(is_active=True).first()
+
+

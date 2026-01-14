@@ -1,6 +1,27 @@
 from django.contrib import admin
 from django.db.models import Count
-from .models import Participant, Subject
+from .models import Participant, Subject, OlympiadSettings
+
+
+@admin.register(OlympiadSettings)
+class OlympiadSettingsAdmin(admin.ModelAdmin):
+    list_display = ['event_name', 'event_date', 'location', 'is_active', 'updated_at']
+    list_filter = ['is_active']
+    search_fields = ['event_name', 'location', 'address']
+    readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('Мероприятие', {
+            'fields': ('event_name', 'event_date', 'is_active')
+        }),
+        ('Место проведения', {
+            'fields': ('location', 'address')
+        }),
+        ('Дополнительно', {
+            'fields': ('description', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
 
 
 @admin.register(Subject)

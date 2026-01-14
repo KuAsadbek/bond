@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-ru="Ваш билет | Bond and Data" data-uz="Sizning chiptangiz | Bond and Data">Ваш билет | Bond and Data</title>
+    <title data-ru="Ваш билет | Bond and Data" data-uz="Sizning chiptangiz | Bond and Data">Ваш билет | Bond and Data
+    </title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -52,8 +53,15 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-30px) scale(1.05); }
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-30px) scale(1.05);
+            }
         }
 
         .container {
@@ -122,8 +130,15 @@
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .header {
@@ -357,7 +372,8 @@
                 gap: 15px;
             }
 
-            .ticket-left, .ticket-right {
+            .ticket-left,
+            .ticket-right {
                 width: 100%;
                 border: none;
                 padding: 10px 0;
@@ -393,7 +409,8 @@
         <div class="card">
             <div class="header">
                 <h1 data-ru="Ваш билет" data-uz="Sizning chiptangiz">Ваш билет</h1>
-                <p data-ru="Покажите QR-код на входе или скачайте PDF" data-uz="Kirish joyida QR-kodni ko'rsating yoki PDF yuklab oling">
+                <p data-ru="Покажите QR-код на входе или скачайте PDF"
+                    data-uz="Kirish joyida QR-kodni ko'rsating yoki PDF yuklab oling">
                     Покажите QR-код на входе или скачайте PDF
                 </p>
             </div>
@@ -435,6 +452,21 @@
                             <div class="ticket-label">Telefon</div>
                             <div class="ticket-value">{{ participant.phone_number }}</div>
                         </div>
+                        {% if olympiad %}
+                        <div class="ticket-info-row">
+                            <div class="ticket-label">Sana</div>
+                            <div class="ticket-value" style="color: #ffd700;">{{ olympiad.event_date|date:"d.m.Y" }}
+                            </div>
+                        </div>
+                        <div class="ticket-info-row">
+                            <div class="ticket-label">Vaqt</div>
+                            <div class="ticket-value" style="color: #ffd700;">{{ olympiad.event_date|time:"H:i" }}</div>
+                        </div>
+                        <div class="ticket-info-row">
+                            <div class="ticket-label">Manzil</div>
+                            <div class="ticket-value" style="color: #00bfff;">{{ olympiad.location }}</div>
+                        </div>
+                        {% endif %}
                         {% if participant.subject %}
                         <div class="ticket-info-row">
                             <div class="ticket-label">Fan</div>
@@ -448,8 +480,8 @@
                     <!-- Right - QR -->
                     <div class="ticket-right">
                         <div class="ticket-qr-frame">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data={{ participant.id }}" 
-                                 class="ticket-qr" alt="QR">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data={{ participant.id }}"
+                                class="ticket-qr" alt="QR">
                         </div>
                         <div class="ticket-scan">SKANERLANG</div>
                         <div class="ticket-scan-sub">Kirish uchun</div>
@@ -461,18 +493,18 @@
             <!-- Buttons -->
             <div class="btn-container">
                 <a href="{% url 'public:view_ticket_pdf' uuid=participant.id %}" target="_blank" class="btn-primary"
-                   style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);"
-                   data-ru="🔍 Открыть" data-uz="🔍 Ochish">
+                    style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);"
+                    data-ru="🔍 Открыть" data-uz="🔍 Ochish">
                     🔍 Открыть
                 </a>
                 <a href="{% url 'public:download_ticket' uuid=participant.id %}" class="btn-primary"
-                   data-ru="📥 Скачать PDF" data-uz="📥 PDF yuklab olish">
+                    data-ru="📥 Скачать PDF" data-uz="📥 PDF yuklab olish">
                     📥 Скачать PDF
                 </a>
             </div>
 
-            <a href="{% url 'public:profile' %}" class="btn-secondary" 
-               data-ru="← Вернуться в профиль" data-uz="← Profilga qaytish">
+            <a href="{% url 'public:profile' %}" class="btn-secondary" data-ru="← Вернуться в профиль"
+                data-uz="← Profilga qaytish">
                 ← Вернуться в профиль
             </a>
         </div>
@@ -492,7 +524,7 @@
                 document.title = title.getAttribute('data-' + lang);
             }
         }
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const savedLang = localStorage.getItem('lang') || 'ru';
             setLanguage(savedLang);
         });
