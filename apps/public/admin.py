@@ -12,7 +12,7 @@ class OlympiadSettingsAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Мероприятие', {
-            'fields': ('event_name', 'event_date', 'is_active')
+            'fields': ('event_name', 'event_date', 'ticket_price', 'is_active')
         }),
         ('Место проведения', {
             'fields': ('location', 'address')
@@ -32,10 +32,10 @@ class SubjectAdmin(admin.ModelAdmin):
 
 @admin.register(Participant)
 class ParticipantAdmin(admin.ModelAdmin):
-    list_display = ['username', 'fullname', 'phone_number', 'school', 'grade', 'subject', 'test_language', 'is_checked_in', 'created_at']
-    list_filter = ['is_checked_in', 'test_language', 'grade', 'district', 'subject', 'created_at']
+    list_display = ['username', 'fullname', 'phone_number', 'school', 'grade', 'subject', 'test_language', 'is_paid', 'is_checked_in', 'created_at']
+    list_filter = ['is_paid', 'is_checked_in', 'test_language', 'grade', 'district', 'subject', 'created_at']
     search_fields = ['username', 'fullname', 'phone_number', 'school', 'teacher_fullname']
-    readonly_fields = ['id', 'password', 'created_at', 'checked_in_at']
+    readonly_fields = ['id', 'password', 'created_at', 'checked_in_at', 'paid_at']
     ordering = ['-created_at']
     
     fieldsets = (
@@ -47,6 +47,9 @@ class ParticipantAdmin(admin.ModelAdmin):
         }),
         ('Образование', {
             'fields': ('region', 'district', 'school', 'grade', 'teacher_fullname', 'subject', 'test_language')
+        }),
+        ('Оплата', {
+            'fields': ('is_paid', 'paid_at')
         }),
         ('Статус', {
             'fields': ('is_checked_in', 'checked_in_at', 'created_at')

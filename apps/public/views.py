@@ -6,7 +6,7 @@ import os
 import requests
 from django.conf import settings
 
-from .models import Participant, PhoneVerification, OlympiadSettings
+from .models import Participant, PhoneVerification, OlympiadSettings, Order
 from .forms import ParticipantRegistrationForm, LoginForm
 from .utils import generate_ticket_pdf
 
@@ -142,12 +142,11 @@ class TicketView(View):
 
         participant = get_object_or_404(Participant, id=participant_id)
         
-        # Check if subscribed to Telegram channel
-        if not participant.telegram_subscribed:
-            from django.urls import reverse
-            return redirect(f"{reverse('public:subscribe')}?redirect=ticket")
-        
+        # Check if payment is required and not paid
         olympiad = OlympiadSettings.get_active()
+        if olympiad and olympiad.ticket_price > 0 and not participant.is_paid:
+            return redirect("public:payment")
+        
         return render(request, "public/ticket_view.html", {
             "participant": participant,
             "olympiad": olympiad
@@ -163,11 +162,6 @@ class RatingView(View):
             return redirect("public:login")
 
         participant = get_object_or_404(Participant, id=participant_id)
-        
-        # Check if subscribed to Telegram channel
-        if not participant.telegram_subscribed:
-            from django.urls import reverse
-            return redirect(f"{reverse('public:subscribe')}?redirect=rating")
 
         # Get total participants count
         total_participants = Participant.objects.count()
@@ -193,6 +187,11 @@ class DownloadTicketView(View):
 
     def get(self, request, uuid):
         participant = get_object_or_404(Participant, id=uuid)
+        
+        # Check if payment is required and not paid
+        olympiad = OlympiadSettings.get_active()
+        if olympiad and olympiad.ticket_price > 0 and not participant.is_paid:
+            return redirect("public:payment")
 
         # Generate PDF
         pdf_bytes = generate_ticket_pdf(participant)
@@ -210,6 +209,11 @@ class ViewTicketPDFView(View):
 
     def get(self, request, uuid):
         participant = get_object_or_404(Participant, id=uuid)
+        
+        # Check if payment is required and not paid
+        olympiad = OlympiadSettings.get_active()
+        if olympiad and olympiad.ticket_price > 0 and not participant.is_paid:
+            return redirect("public:payment")
 
         # Generate PDF
         pdf_bytes = generate_ticket_pdf(participant)
@@ -220,6 +224,35 @@ class ViewTicketPDFView(View):
         response["Content-Disposition"] = f'inline; filename="{filename}"'
 
         return response
+
+
+class PaymentView(View):
+    """Payment page for ticket purchase."""
+
+    def get(self, request):
+        participant_id = request.session.get("participant_id")
+        if not participant_id:
+            return redirect("public:login")
+
+        participant = get_object_or_404(Participant, id=participant_id)
+        
+        # If already paid, redirect to ticket
+        if participant.is_paid:
+            return redirect("public:view_ticket")
+        
+        olympiad = OlympiadSettings.get_active()
+        
+        # Get pending order if exists
+        pending_order = Order.objects.filter(
+            participant=participant,
+            status='pending'
+        ).first()
+        
+        return render(request, "public/payment.html", {
+            "participant": participant,
+            "olympiad": olympiad,
+            "pending_order": pending_order,
+        })
 
 
 class SubscribeView(View):

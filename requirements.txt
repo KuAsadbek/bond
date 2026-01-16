@@ -5,3 +5,4 @@ qrcode[pil]>=7.4
 pyzbar>=0.1.9
 Pillow>=10.0
 python-dotenv>=1.0
+djangorestframework>=3.14

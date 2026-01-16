@@ -58,6 +58,10 @@ class Participant(models.Model):
         verbose_name="Язык теста"
     )
 
+    # Payment fields
+    is_paid = models.BooleanField(default=False, verbose_name="Оплачен")
+    paid_at = models.DateTimeField(null=True, blank=True, verbose_name="Дата оплаты")
+
     is_checked_in = models.BooleanField(default=False, verbose_name="Присутствовал")
     checked_in_at = models.DateTimeField(
         null=True, blank=True, verbose_name="Время отметки"
@@ -125,6 +129,12 @@ class OlympiadSettings(models.Model):
         default="BOND Olimpiadasi", 
         verbose_name="Название мероприятия"
     )
+    ticket_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        verbose_name="Стоимость билета (сум)"
+    )
     event_date = models.DateTimeField(
         verbose_name="Дата и время начала"
     )
@@ -167,3 +177,54 @@ class OlympiadSettings(models.Model):
         return cls.objects.filter(is_active=True).first()
 
 
+class Order(models.Model):
+    """Order model for tracking payments."""
+
+    STATUS_CHOICES = [
+        ('pending', 'Ожидает оплаты'),
+        ('paid', 'Оплачен'),
+        ('cancelled', 'Отменён'),
+        ('failed', 'Ошибка'),
+    ]
+
+    id = models.BigAutoField(primary_key=True)
+    participant = models.ForeignKey(
+        Participant, 
+        on_delete=models.CASCADE, 
+        related_name='orders',
+        verbose_name="Участник"
+    )
+    total_amount = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2,
+        verbose_name="Сумма (сум)"
+    )
+    status = models.CharField(
+        max_length=20, 
+        choices=STATUS_CHOICES, 
+        default='pending',
+        verbose_name="Статус"
+    )
+    payment_method = models.CharField(
+        max_length=20, 
+        default='payme',
+        verbose_name="Способ оплаты"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создан")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлён")
+    
+    # Payme specific fields
+    payme_transaction_id = models.CharField(
+        max_length=255, 
+        blank=True, 
+        null=True,
+        verbose_name="Payme Transaction ID"
+    )
+
+    class Meta:
+        verbose_name = "Заказ"
+        verbose_name_plural = "Заказы"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Order #{self.id} - {self.participant.fullname} - {self.status}"

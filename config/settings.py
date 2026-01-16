@@ -43,9 +43,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # Third party apps
+    'rest_framework',
+
+    # Local apps
     'apps.admin_panel',
     'apps.users',
     'apps.public',
+    'apps.api',
 ]
 
 MIDDLEWARE = [
@@ -140,8 +145,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Telegram Bot
-TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '7427624153:AAHEuJqH2FHaZj_o9apD1bQ6NguAGnzWLKI')
+TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '7898598468:AAG5A2-8d6RYKNmhUOHXfhIs2T7QtJd9AEY')
+
 TELEGRAM_CHANNEL_ID = -1002010508021
 
 # Eskiz SMS API
 ESKIZ_TOKEN = os.environ.get('ESKIZ_TOKEN', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA5NjA1MjMsImlhdCI6MTc2ODM2ODUyMywicm9sZSI6InVzZXIiLCJzaWduIjoiZGI1NjYwNWVjMTQ2ZjMzNzVjOWYyMDA0N2ZlNzY1M2MxYzlkMzQ4NTZjM2FmODBlZjljYWI3MGE5NDE3YmJkZCIsInN1YiI6IjExMzgxIn0.Vy795_CCfe-xrjPUyNBUqM4LDlGU58giOZEIzeXoEzM')
+
+PAYME_ID = '696a14648ab5a5d4a8652387'
+# PAYME_KEY = "yH0TUOF#wy2pyHhZnYkM8gGQBrOpMdwEvRDN"
+PAYME_KEY = "V4ecBuHm?3vQgBhH5XdBpSDH2R#1H4o7jOtx"
