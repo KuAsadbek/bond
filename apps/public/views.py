@@ -81,18 +81,18 @@ class LoginView(View):
     def post(self, request):
         form = LoginForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data["username"]
+            phone_number = form.cleaned_data["phone_number"]
             password = form.cleaned_data["password"]
 
             try:
-                participant = Participant.objects.get(username=username)
+                participant = Participant.objects.get(phone_number=phone_number)
                 if participant.check_password(password):
                     request.session["participant_id"] = str(participant.id)
                     return redirect("public:profile")
                 else:
-                    form.add_error(None, "Неверный логин или пароль")
+                    form.add_error(None, "Неверный номер или пароль")
             except Participant.DoesNotExist:
-                form.add_error(None, "Неверный логин или пароль")
+                form.add_error(None, "Неверный номер или пароль")
 
         return render(request, "public/login.html", {"form": form})
 

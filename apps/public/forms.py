@@ -1,5 +1,5 @@
 from django import forms
-from .models import Participant, Subject
+from .models import Participant, Subject, School
 
 
 class ParticipantRegistrationForm(forms.ModelForm):
@@ -25,29 +25,47 @@ class ParticipantRegistrationForm(forms.ModelForm):
         ),
         label="Подтвердите пароль",
     )
+    
+    # Field for selecting school from list
+    school_select = forms.ModelChoiceField(
+        queryset=School.objects.all(),
+        required=False,
+        empty_label="Выберите школу / Maktabni tanlang",
+        widget=forms.Select(
+            attrs={
+                "class": "form-input",
+                "id": "id_school_select",
+            }
+        ),
+        label="Выберите школу",
+    )
+    
+    # Field for manual school entry
+    school_manual = forms.CharField(
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-input",
+                "placeholder": "Или введите название школы",
+                "id": "id_school_manual",
+            }
+        ),
+        label="Или введите название школы",
+    )
 
     class Meta:
         model = Participant
         fields = [
-            "username",
             "fullname",
             "phone_number",
             "region",
             "district",
-            "school",
             "grade",
             "teacher_fullname",
             "subject",
             "test_language",
         ]
         widgets = {
-            "username": forms.TextInput(
-                attrs={
-                    "class": "form-input",
-                    "placeholder": "Придумайте логин",
-                    "required": True,
-                }
-            ),
             "fullname": forms.TextInput(
                 attrs={
                     "class": "form-input",
@@ -74,13 +92,6 @@ class ParticipantRegistrationForm(forms.ModelForm):
                     "class": "form-input",
                     "required": True,
                     "id": "id_district",
-                }
-            ),
-            "school": forms.TextInput(
-                attrs={
-                    "class": "form-input",
-                    "placeholder": "Название вашей школы",
-                    "required": True,
                 }
             ),
             "grade": forms.Select(
@@ -141,14 +152,32 @@ class ParticipantRegistrationForm(forms.ModelForm):
         cleaned_data = super().clean()
         password = cleaned_data.get("password")
         password_confirm = cleaned_data.get("password_confirm")
+        school_select = cleaned_data.get("school_select")
+        school_manual = cleaned_data.get("school_manual", "").strip()
 
         if password and password_confirm and password != password_confirm:
             raise forms.ValidationError("Пароли не совпадают")
+        
+        # Validate school selection - at least one must be provided
+        if not school_select and not school_manual:
+            raise forms.ValidationError("Выберите школу из списка или введите название вручную")
 
         return cleaned_data
 
     def save(self, commit=True):
         participant = super().save(commit=False)
+        # Use phone_number as username
+        participant.username = participant.phone_number
+        
+        # Set school from selection or manual entry
+        school_select = self.cleaned_data.get("school_select")
+        school_manual = self.cleaned_data.get("school_manual", "").strip()
+        
+        if school_select:
+            participant.school = school_select.name
+        elif school_manual:
+            participant.school = school_manual
+        
         participant.set_password(self.cleaned_data["password"])
         if commit:
             participant.save()
@@ -158,15 +187,15 @@ class ParticipantRegistrationForm(forms.ModelForm):
 class LoginForm(forms.Form):
     """Login form for participants."""
 
-    username = forms.CharField(
+    phone_number = forms.CharField(
         widget=forms.TextInput(
             attrs={
                 "class": "form-input",
-                "placeholder": "Введите логин",
+                "placeholder": "Введите номер телефона",
                 "required": True,
             }
         ),
-        label="Логин",
+        label="Номер телефона",
     )
     password = forms.CharField(
         widget=forms.PasswordInput(
@@ -178,3 +207,20 @@ class LoginForm(forms.Form):
         ),
         label="Пароль",
     )
+
+    def clean_phone_number(self):
+        """Validate and format phone number with +998 prefix."""
+        phone = self.cleaned_data.get("phone_number", "")
+
+        # Remove all non-digit characters
+        digits = "".join(filter(str.isdigit, phone))
+
+        # Remove leading 998 if present
+        if digits.startswith("998"):
+            digits = digits[3:]
+
+        # Should be 9 digits (without country code)
+        if len(digits) != 9:
+            raise forms.ValidationError("Введите 9 цифр номера телефона")
+
+        return f"+998{digits}"

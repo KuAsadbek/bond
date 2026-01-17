@@ -25,7 +25,6 @@ from django.utils import timezone
 
 from apps.public.models import Order, Participant, OlympiadSettings
 
-
 # Payme / Paycom error codes (commonly used)
 ERROR_INTERNAL_SERVER = -32400
 ERROR_INSUFFICIENT_PRIVILEGE = -32504
@@ -38,7 +37,6 @@ ERROR_ORDER_NOT_FOUND = -31050
 ERROR_CANT_PERFORM_OPERATION = -31008
 ERROR_ORDER_ALREADY_PAID = -31051
 ERROR_TRANSACTION_NOT_FOUND = -31003
-
 
 def generate_pay_link(order_id: int, amount_tiyin: int, return_url: Optional[str] = None) -> str:
     """

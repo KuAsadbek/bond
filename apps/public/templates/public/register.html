@@ -348,6 +348,37 @@
             font-size: 12px;
         }
 
+        .or-divider {
+            text-align: center;
+            margin: 12px 0;
+            position: relative;
+        }
+
+        .or-divider::before,
+        .or-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .or-divider::before {
+            left: 0;
+        }
+
+        .or-divider::after {
+            right: 0;
+        }
+
+        .or-divider span {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            padding: 0 10px;
+            background: transparent;
+        }
+
         @media (max-width: 480px) {
             .card {
                 padding: 30px 25px;
@@ -556,14 +587,8 @@
                     </button>
                 </div>
 
-                <!-- STEP 2: Login & Password -->
+                <!-- STEP 2: Password -->
                 <div class="step-content" id="step2">
-                    <div class="form-group">
-                        <label data-ru="Логин *" data-uz="Login *">Логин *</label>
-                        {{ form.username }}
-                        {% if form.username.errors %}{{ form.username.errors }}{% endif %}
-                    </div>
-
                     <div class="form-group">
                         <label data-ru="Пароль *" data-uz="Parol *">Пароль *</label>
                         {{ form.password }}
@@ -619,7 +644,14 @@
 
                     <div class="form-group">
                         <label data-ru="Школа *" data-uz="Maktab *">Школа *</label>
-                        {{ form.school }}
+                        {{ form.school_select }}
+                        <div class="or-divider">
+                            <span data-ru="или введите вручную" data-uz="yoki qo'lda kiriting">или введите
+                                вручную</span>
+                        </div>
+                        {{ form.school_manual }}
+                        {% if form.school_select.errors %}{{ form.school_select.errors }}{% endif %}
+                        {% if form.school_manual.errors %}{{ form.school_manual.errors }}{% endif %}
                     </div>
 
                     <div class="form-row">
@@ -672,7 +704,7 @@
 
         const stepTitles = {
             1: { ru: "Шаг 1: Подтверждение телефона", uz: "1-qadam: Telefonni tasdiqlash" },
-            2: { ru: "Шаг 2: Логин и пароль", uz: "2-qadam: Login va parol" },
+            2: { ru: "Шаг 2: Пароль", uz: "2-qadam: Parol" },
             3: { ru: "Шаг 3: Личные данные", uz: "3-qadam: Shaxsiy ma'lumotlar" }
         };
 
@@ -707,11 +739,10 @@
 
             // Validate step 2 before going to step 3
             if (step === 3 && currentStep === 2) {
-                const username = document.querySelector('[name="username"]').value;
                 const password = document.querySelector('[name="password"]').value;
                 const passwordConfirm = document.querySelector('[name="password_confirm"]').value;
 
-                if (!username || !password || !passwordConfirm) {
+                if (!password || !passwordConfirm) {
                     alert(localStorage.getItem('lang') === 'uz' ? "Barcha maydonlarni to'ldiring" : "Заполните все поля");
                     return;
                 }

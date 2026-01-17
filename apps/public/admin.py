@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.db.models import Count
-from .models import Participant, Subject, OlympiadSettings
+from .models import Participant, Subject, School, OlympiadSettings
 
 
 @admin.register(OlympiadSettings)
@@ -28,6 +28,13 @@ class OlympiadSettingsAdmin(admin.ModelAdmin):
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ['name']
     search_fields = ['name']
+
+
+@admin.register(School)
+class SchoolAdmin(admin.ModelAdmin):
+    list_display = ['name', 'district']
+    list_filter = ['district']
+    search_fields = ['name', 'district']
 
 
 @admin.register(Participant)

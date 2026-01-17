@@ -17,6 +17,21 @@ class Subject(models.Model):
         return self.name
 
 
+class School(models.Model):
+    """School model for participant school selection."""
+
+    name = models.CharField(max_length=255, verbose_name="Название школы")
+    district = models.CharField(max_length=100, verbose_name="Район", blank=True, default="")
+
+    class Meta:
+        verbose_name = "Школа"
+        verbose_name_plural = "Школы"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
 class Participant(models.Model):
     """Event participant model with registration data and check-in status."""
 

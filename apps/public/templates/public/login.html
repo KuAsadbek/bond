@@ -199,6 +199,26 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
         }
 
+        .phone-input-wrapper {
+            display: flex;
+        }
+
+        .phone-prefix {
+            padding: 14px 16px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            background: rgba(102, 126, 234, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+        }
+
+        .phone-input-wrapper .form-input {
+            border-radius: 0 12px 12px 0;
+            flex: 1;
+        }
+
         .btn-submit {
             width: 100%;
             padding: 16px;
@@ -333,9 +353,14 @@
                 {% csrf_token %}
 
                 <div class="form-group">
-                    <label for="id_username" data-ru="Логин *" data-uz="Login *">Логин *</label>
-                    {{ form.username }}
-                    {% if form.username.errors %}{{ form.username.errors }}{% endif %}
+                    <label for="id_phone_number" data-ru="Номер телефона *" data-uz="Telefon raqami *">Номер телефона
+                        *</label>
+                    <div class="phone-input-wrapper">
+                        <span class="phone-prefix">+998</span>
+                        <input type="text" name="phone_number" id="id_phone_number" class="form-input"
+                            placeholder="XX XXX XX XX" maxlength="12" required>
+                    </div>
+                    {% if form.phone_number.errors %}{{ form.phone_number.errors }}{% endif %}
                 </div>
 
                 <div class="form-group">
