@@ -17,21 +17,6 @@ class Subject(models.Model):
         return self.name
 
 
-class School(models.Model):
-    """School model for participant school selection."""
-
-    name = models.CharField(max_length=255, verbose_name="Название школы")
-    district = models.CharField(max_length=100, verbose_name="Район", blank=True, default="")
-
-    class Meta:
-        verbose_name = "Школа"
-        verbose_name_plural = "Школы"
-        ordering = ["name"]
-
-    def __str__(self):
-        return self.name
-
-
 class Participant(models.Model):
     """Event participant model with registration data and check-in status."""
 
@@ -235,6 +220,12 @@ class Order(models.Model):
         null=True,
         verbose_name="Payme Transaction ID"
     )
+    
+    payme_create_time = models.BigIntegerField(null=True, blank=True, verbose_name="Payme create_time (ms)")
+    payme_perform_time = models.BigIntegerField(null=True, blank=True, verbose_name="Payme perform_time (ms)")
+    payme_cancel_time = models.BigIntegerField(null=True, blank=True, verbose_name="Payme cancel_time (ms)")
+    payme_state = models.IntegerField(null=True, blank=True, verbose_name="Payme state")
+    payme_cancel_reason = models.IntegerField(null=True, blank=True, verbose_name="Payme cancel reason")
 
     class Meta:
         verbose_name = "Заказ"

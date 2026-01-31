@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.db.models import Count
-from .models import Participant, Subject, School, OlympiadSettings
-
+from .models import Participant, Subject, OlympiadSettings,Order
 
 @admin.register(OlympiadSettings)
 class OlympiadSettingsAdmin(admin.ModelAdmin):
@@ -28,13 +27,6 @@ class OlympiadSettingsAdmin(admin.ModelAdmin):
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ['name']
     search_fields = ['name']
-
-
-@admin.register(School)
-class SchoolAdmin(admin.ModelAdmin):
-    list_display = ['name', 'district']
-    list_filter = ['district']
-    search_fields = ['name', 'district']
 
 
 @admin.register(Participant)
@@ -83,3 +75,117 @@ class ParticipantAdmin(admin.ModelAdmin):
         extra_context['total_count'] = ru_count + uz_count
         
         return super().changelist_view(request, extra_context=extra_context)
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    # Что показывать в списке
+    list_display = (
+        "id",
+        "participant",
+        "total_amount",
+        "status",
+        "payment_method",
+        "payme_transaction_id",
+        "payme_state",
+        "payme_create_time",
+        "created_at",
+        "updated_at",
+    )
+
+    # Фильтры справа
+    list_filter = (
+        "status",
+        "payment_method",
+        "created_at",
+        "updated_at",
+        "payme_state",
+    )
+
+    # Поиск сверху (можешь добавить свои поля Participant при необходимости)
+    search_fields = (
+        "id",
+        "participant__fullname",
+        "participant__id",
+        "payme_transaction_id",
+    )
+
+    # Удобная навигация по дате
+    date_hierarchy = "created_at"
+
+    # Поля в форме редактирования
+    fieldsets = (
+        ("Order", {
+            "fields": (
+                "participant",
+                "total_amount",
+                "status",
+                "payment_method",
+            )
+        }),
+        ("Payme", {
+            "fields": (
+                "payme_transaction_id",
+                "payme_state",
+                "payme_create_time",
+                "payme_perform_time",
+                "payme_cancel_time",
+                "payme_cancel_reason",
+            )
+        }),
+        ("Timestamps", {
+            "fields": ("created_at", "updated_at")
+        }),
+    )
+
+    # created_at/updated_at только для чтения (иначе админка даст менять вручную)
+    readonly_fields = ("created_at", "updated_at")
+
+    # Быстрые массовые операции
+    actions = (
+        "mark_pending",
+        "mark_paid",
+        "mark_cancelled",
+        "reset_payme_fields",
+    )
+
+    # Чтобы большие таблицы не тормозили: подтягиваем FK одним запросом
+    list_select_related = ("participant",)
+
+    # ---- Actions ----
+    @admin.action(description="Mark as PENDING (status=pending)")
+    def mark_pending(self, request, queryset):
+        updated = queryset.update(status="pending")
+        self.message_user(request, f"Updated: {updated}")
+
+    @admin.action(description="Mark as PAID (status=paid) + set Payme state=2")
+    def mark_paid(self, request, queryset):
+        now_ms = int(timezone.now().timestamp() * 1000)
+        updated = queryset.update(
+            status="paid",
+            payme_state=2,
+            payme_perform_time=now_ms,
+        )
+        self.message_user(request, f"Updated: {updated}")
+
+    @admin.action(description="Mark as CANCELLED (status=cancelled) + set Payme state=-1")
+    def mark_cancelled(self, request, queryset):
+        now_ms = int(timezone.now().timestamp() * 1000)
+        updated = queryset.update(
+            status="cancelled",
+            payme_state=-1,
+            payme_cancel_time=now_ms,
+        )
+        self.message_user(request, f"Updated: {updated}")
+
+    @admin.action(description="Reset Payme fields (transaction/state/time/reason)")
+    def reset_payme_fields(self, request, queryset):
+        updated = queryset.update(
+            payme_transaction_id=None,
+            payme_create_time=None,
+            payme_perform_time=None,
+            payme_cancel_time=None,
+            payme_state=None,
+            payme_cancel_reason=None,
+        )
+        self.message_user(request, f"Reset Payme fields for: {updated} order(s)")

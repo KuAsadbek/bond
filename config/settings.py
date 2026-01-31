@@ -82,7 +82,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
@@ -138,7 +137,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-
 # Default primary key field type
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -152,6 +150,8 @@ TELEGRAM_CHANNEL_ID = -1002010508021
 # Eskiz SMS API
 ESKIZ_TOKEN = os.environ.get('ESKIZ_TOKEN', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzA5NjA1MjMsImlhdCI6MTc2ODM2ODUyMywicm9sZSI6InVzZXIiLCJzaWduIjoiZGI1NjYwNWVjMTQ2ZjMzNzVjOWYyMDA0N2ZlNzY1M2MxYzlkMzQ4NTZjM2FmODBlZjljYWI3MGE5NDE3YmJkZCIsInN1YiI6IjExMzgxIn0.Vy795_CCfe-xrjPUyNBUqM4LDlGU58giOZEIzeXoEzM')
 
-PAYME_ID = '696a14648ab5a5d4a8652387'
+PAYME_ID = '696a14648ab5a5d4a8652387'   # пусто
 # PAYME_KEY = "yH0TUOF#wy2pyHhZnYkM8gGQBrOpMdwEvRDN"
 PAYME_KEY = "V4ecBuHm?3vQgBhH5XdBpSDH2R#1H4o7jOtx"
+
+PAYME_SANDBOX = True
