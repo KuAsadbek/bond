@@ -471,7 +471,80 @@
         document.addEventListener('DOMContentLoaded', function () {
             const savedLang = localStorage.getItem('lang') || 'ru';
             setLanguage(savedLang);
+            
+            // Check if returned from payment (referrer contains paycom/payme)
+            const referrer = document.referrer.toLowerCase();
+            const urlParams = new URLSearchParams(window.location.search);
+            const fromPayme = referrer.includes('paycom') || 
+                              referrer.includes('payme') || 
+                              urlParams.has('payment_callback') ||
+                              sessionStorage.getItem('payment_initiated');
+            
+            if (fromPayme) {
+                startPaymentStatusPolling();
+            }
         });
+
+        let pollingInterval = null;
+        let pollCount = 0;
+        const MAX_POLLS = 30; // Max 60 seconds (30 * 2 seconds)
+
+        function startPaymentStatusPolling() {
+            const btn = document.getElementById('payme-btn');
+            const savedLang = localStorage.getItem('lang') || 'ru';
+            
+            // Show loading state with message
+            btn.classList.add('loading');
+            btn.disabled = true;
+            btn.querySelector('span[data-ru]').textContent = savedLang === 'ru' 
+                ? 'Проверка оплаты...' 
+                : "To'lov tekshirilmoqda...";
+            
+            checkPaymentStatus();
+            pollingInterval = setInterval(checkPaymentStatus, 2000);
+        }
+
+        async function checkPaymentStatus() {
+            pollCount++;
+            
+            if (pollCount > MAX_POLLS) {
+                stopPolling();
+                const btn = document.getElementById('payme-btn');
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                const savedLang = localStorage.getItem('lang') || 'ru';
+                btn.querySelector('span[data-ru]').textContent = savedLang === 'ru' 
+                    ? 'Оплатить через Payme' 
+                    : "Payme orqali to'lash";
+                sessionStorage.removeItem('payment_initiated');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/payment/status/', {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.is_paid) {
+                    stopPolling();
+                    sessionStorage.removeItem('payment_initiated');
+                    // Payment confirmed, redirect to ticket
+                    window.location.href = '/ticket/';
+                }
+            } catch (error) {
+                console.error('Status check error:', error);
+            }
+        }
+
+        function stopPolling() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+        }
 
         async function initiatePayment() {
             const btn = document.getElementById('payme-btn');
@@ -492,6 +565,8 @@
                 const data = await response.json();
 
                 if (data.success && data.pay_url) {
+                    // Mark that payment was initiated
+                    sessionStorage.setItem('payment_initiated', 'true');
                     // Redirect to Payme checkout
                     window.location.href = data.pay_url;
                 } else {

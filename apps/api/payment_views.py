@@ -233,6 +233,7 @@ class PaymeCallBackAPIView(View):
             "PerformTransaction": self._perform_transaction,
             "CancelTransaction": self._cancel_transaction,
             "CheckTransaction": self._check_transaction,
+            "GetStatement": self._get_statement,
         }
         handler = handlers.get(method)
         if not handler:

@@ -22,12 +22,10 @@ class OlympiadSettingsAdmin(admin.ModelAdmin):
         }),
     )
 
-
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
     list_display = ['name']
     search_fields = ['name']
-
 
 @admin.register(Participant)
 class ParticipantAdmin(admin.ModelAdmin):
@@ -75,7 +73,6 @@ class ParticipantAdmin(admin.ModelAdmin):
         extra_context['total_count'] = ru_count + uz_count
         
         return super().changelist_view(request, extra_context=extra_context)
-
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):

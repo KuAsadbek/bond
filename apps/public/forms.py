@@ -1,5 +1,5 @@
 from django import forms
-from .models import Participant, Subject, School
+from .models import Participant, Subject
 
 
 class ParticipantRegistrationForm(forms.ModelForm):
@@ -25,33 +25,6 @@ class ParticipantRegistrationForm(forms.ModelForm):
         ),
         label="Подтвердите пароль",
     )
-    
-    # Field for selecting school from list
-    school_select = forms.ModelChoiceField(
-        queryset=School.objects.all(),
-        required=False,
-        empty_label="Выберите школу / Maktabni tanlang",
-        widget=forms.Select(
-            attrs={
-                "class": "form-input",
-                "id": "id_school_select",
-            }
-        ),
-        label="Выберите школу",
-    )
-    
-    # Field for manual school entry
-    school_manual = forms.CharField(
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                "class": "form-input",
-                "placeholder": "Или введите название школы",
-                "id": "id_school_manual",
-            }
-        ),
-        label="Или введите название школы",
-    )
 
     class Meta:
         model = Participant
@@ -60,6 +33,7 @@ class ParticipantRegistrationForm(forms.ModelForm):
             "phone_number",
             "region",
             "district",
+            "school",
             "grade",
             "teacher_fullname",
             "subject",
@@ -92,6 +66,13 @@ class ParticipantRegistrationForm(forms.ModelForm):
                     "class": "form-input",
                     "required": True,
                     "id": "id_district",
+                }
+            ),
+            "school": forms.TextInput(
+                attrs={
+                    "class": "form-input",
+                    "placeholder": "Название вашей школы",
+                    "required": True,
                 }
             ),
             "grade": forms.Select(
@@ -152,15 +133,9 @@ class ParticipantRegistrationForm(forms.ModelForm):
         cleaned_data = super().clean()
         password = cleaned_data.get("password")
         password_confirm = cleaned_data.get("password_confirm")
-        school_select = cleaned_data.get("school_select")
-        school_manual = cleaned_data.get("school_manual", "").strip()
 
         if password and password_confirm and password != password_confirm:
             raise forms.ValidationError("Пароли не совпадают")
-        
-        # Validate school selection - at least one must be provided
-        if not school_select and not school_manual:
-            raise forms.ValidationError("Выберите школу из списка или введите название вручную")
 
         return cleaned_data
 
@@ -168,16 +143,6 @@ class ParticipantRegistrationForm(forms.ModelForm):
         participant = super().save(commit=False)
         # Use phone_number as username
         participant.username = participant.phone_number
-        
-        # Set school from selection or manual entry
-        school_select = self.cleaned_data.get("school_select")
-        school_manual = self.cleaned_data.get("school_manual", "").strip()
-        
-        if school_select:
-            participant.school = school_select.name
-        elif school_manual:
-            participant.school = school_manual
-        
         participant.set_password(self.cleaned_data["password"])
         if commit:
             participant.save()

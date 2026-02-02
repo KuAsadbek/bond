@@ -348,37 +348,6 @@
             font-size: 12px;
         }
 
-        .or-divider {
-            text-align: center;
-            margin: 12px 0;
-            position: relative;
-        }
-
-        .or-divider::before,
-        .or-divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 40%;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .or-divider::before {
-            left: 0;
-        }
-
-        .or-divider::after {
-            right: 0;
-        }
-
-        .or-divider span {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 12px;
-            padding: 0 10px;
-            background: transparent;
-        }
-
         @media (max-width: 480px) {
             .card {
                 padding: 30px 25px;
@@ -644,14 +613,7 @@
 
                     <div class="form-group">
                         <label data-ru="Школа *" data-uz="Maktab *">Школа *</label>
-                        {{ form.school_select }}
-                        <div class="or-divider">
-                            <span data-ru="или введите вручную" data-uz="yoki qo'lda kiriting">или введите
-                                вручную</span>
-                        </div>
-                        {{ form.school_manual }}
-                        {% if form.school_select.errors %}{{ form.school_select.errors }}{% endif %}
-                        {% if form.school_manual.errors %}{{ form.school_manual.errors }}{% endif %}
+                        {{ form.school }}
                     </div>
 
                     <div class="form-row">
