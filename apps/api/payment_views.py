@@ -84,27 +84,27 @@ class InitiatePaymentView(View):
         if participant.is_paid:
             return JsonResponse({"success": False, "error": "Already paid"}, status=400)
 
-        olympiad = OlympiadSettings.get_active()
+        # Get olympiad_id from request body
+        try:
+            body = json.loads(request.body) if request.body else {}
+        except Exception:
+            body = {}
+        olympiad_id = body.get("olympiad_id")
+
+        if olympiad_id:
+            olympiad = OlympiadSettings.objects.filter(id=olympiad_id, is_active=True).first()
+        else:
+            olympiad = OlympiadSettings.get_active()
+
         if not olympiad or olympiad.ticket_price <= 0:
             return JsonResponse({"success": False, "error": "Ticket price not configured"}, status=400)
 
-        pending_order = Order.objects.filter(participant=participant, status="pending").first()
-        if pending_order:
-            amount_tiyin = int(pending_order.total_amount * 100)
-            pay_url = generate_pay_link(
-                order_id=pending_order.id,
-                amount_tiyin=amount_tiyin,
-                return_url=request.build_absolute_uri("/ticket/"),
-            )
-            return JsonResponse({
-                "success": True,
-                "order_id": pending_order.id,
-                "amount": float(pending_order.total_amount),
-                "pay_url": pay_url,
-            })
+        # Cancel any existing pending orders for this participant
+        Order.objects.filter(participant=participant, status="pending").update(status="cancelled")
 
         order = Order.objects.create(
             participant=participant,
+            olympiad=olympiad,
             total_amount=olympiad.ticket_price,
             status="pending",
             payment_method="payme",
@@ -544,4 +544,265 @@ class PaymeCallBackAPIView(View):
             "transaction": str(transaction_id),
             "state": state,
             "reason": int(order.payme_cancel_reason) if (state in (-1, -2) and order.payme_cancel_reason is not None) else None,
+        })
+
+
+# ============================================================================
+# CLICK PAYMENT INTEGRATION
+# ============================================================================
+
+import hashlib
+
+# Click error codes
+CLICK_ERROR_SUCCESS = 0
+CLICK_ERROR_SIGN_CHECK_FAILED = -1
+CLICK_ERROR_INVALID_AMOUNT = -2
+CLICK_ERROR_ACTION_NOT_FOUND = -3
+CLICK_ERROR_ALREADY_PAID = -4
+CLICK_ERROR_USER_NOT_FOUND = -5
+CLICK_ERROR_TRANSACTION_NOT_FOUND = -6
+CLICK_ERROR_UPDATE_FAILED = -7
+CLICK_ERROR_REQUEST_FROM_CLICK = -8
+CLICK_ERROR_TRANSACTION_CANCELLED = -9
+
+
+def generate_click_pay_link(order_id: int, amount: int, return_url: Optional[str] = None) -> str:
+    """
+    Generate Click checkout URL.
+    
+    amount: integer in SUM (not tiyin)
+    """
+    service_id = getattr(settings, "CLICK_SERVICE_ID", None)
+    merchant_id = getattr(settings, "CLICK_MERCHANT_ID", None)
+    
+    if not service_id:
+        raise RuntimeError("CLICK_SERVICE_ID is not set")
+    
+    base_url = "https://my.click.uz/services/pay"
+    params = f"?service_id={service_id}&merchant_id={merchant_id}&amount={int(amount)}&transaction_param={order_id}"
+    
+    if return_url:
+        import urllib.parse
+        params += f"&return_url={urllib.parse.quote(return_url)}"
+    
+    full_url = base_url + params
+    print(f"[CLICK DEBUG] Generated URL: {full_url}")
+    print(f"[CLICK DEBUG] service_id={service_id}, merchant_id={merchant_id}, amount={amount}, order_id={order_id}")
+    
+    return full_url
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class ClickCallbackView(View):
+    """
+    Click Merchant API Callback View.
+    
+    Handles Prepare (action=0) and Complete (action=1) requests.
+    """
+    
+    def _response(self, click_trans_id, merchant_trans_id, merchant_prepare_id, error, error_note=""):
+        return JsonResponse({
+            "click_trans_id": click_trans_id,
+            "merchant_trans_id": str(merchant_trans_id),
+            "merchant_prepare_id": merchant_prepare_id,
+            "error": error,
+            "error_note": error_note,
+        })
+    
+    def _verify_sign(self, data: Dict[str, Any], action: int) -> bool:
+        """Verify Click signature using MD5."""
+        secret_key = getattr(settings, "CLICK_SECRET_KEY", "")
+        
+        click_trans_id = data.get("click_trans_id", "")
+        service_id = data.get("service_id", "")
+        merchant_trans_id = data.get("merchant_trans_id", "")
+        amount = data.get("amount", "")
+        sign_time = data.get("sign_time", "")
+        sign_string = data.get("sign_string", "")
+        
+        if action == 0:
+            # Prepare: md5(click_trans_id + service_id + SECRET_KEY + merchant_trans_id + amount + action + sign_time)
+            check_string = f"{click_trans_id}{service_id}{secret_key}{merchant_trans_id}{amount}{action}{sign_time}"
+        else:
+            # Complete: md5(click_trans_id + service_id + SECRET_KEY + merchant_trans_id + merchant_prepare_id + amount + action + sign_time)
+            merchant_prepare_id = data.get("merchant_prepare_id", "")
+            check_string = f"{click_trans_id}{service_id}{secret_key}{merchant_trans_id}{merchant_prepare_id}{amount}{action}{sign_time}"
+        
+        expected_sign = hashlib.md5(check_string.encode()).hexdigest()
+        return expected_sign == sign_string
+    
+    def post(self, request: HttpRequest):
+        # Parse form data (Click sends application/x-www-form-urlencoded)
+        data = request.POST.dict()
+        
+        click_trans_id = int(data.get("click_trans_id", 0))
+        service_id = int(data.get("service_id", 0))
+        merchant_trans_id = data.get("merchant_trans_id", "")
+        amount = data.get("amount", "0")
+        action = int(data.get("action", -1))
+        sign_time = data.get("sign_time", "")
+        sign_string = data.get("sign_string", "")
+        error = int(data.get("error", 0))
+        error_note = data.get("error_note", "")
+        
+        # Parse order_id from merchant_trans_id
+        try:
+            order_id = int(merchant_trans_id)
+        except (ValueError, TypeError):
+            return self._response(click_trans_id, merchant_trans_id, 0, CLICK_ERROR_USER_NOT_FOUND, "Invalid order ID")
+        
+        # Verify signature
+        if not self._verify_sign(data, action):
+            return self._response(click_trans_id, merchant_trans_id, 0, CLICK_ERROR_SIGN_CHECK_FAILED, "Invalid signature")
+        
+        # Get order
+        order = Order.objects.filter(id=order_id).first()
+        if not order:
+            return self._response(click_trans_id, merchant_trans_id, 0, CLICK_ERROR_USER_NOT_FOUND, "Order not found")
+        
+        # Verify amount
+        try:
+            expected_amount = float(order.total_amount)
+            received_amount = float(amount)
+            if abs(expected_amount - received_amount) > 0.01:
+                return self._response(click_trans_id, merchant_trans_id, 0, CLICK_ERROR_INVALID_AMOUNT, "Invalid amount")
+        except (ValueError, TypeError):
+            return self._response(click_trans_id, merchant_trans_id, 0, CLICK_ERROR_INVALID_AMOUNT, "Invalid amount format")
+        
+        if action == 0:
+            # PREPARE
+            return self._handle_prepare(order, click_trans_id, merchant_trans_id, error)
+        elif action == 1:
+            # COMPLETE
+            merchant_prepare_id = int(data.get("merchant_prepare_id", 0))
+            return self._handle_complete(order, click_trans_id, merchant_trans_id, merchant_prepare_id, error)
+        else:
+            return self._response(click_trans_id, merchant_trans_id, 0, CLICK_ERROR_ACTION_NOT_FOUND, "Unknown action")
+    
+    def _handle_prepare(self, order: Order, click_trans_id: int, merchant_trans_id: str, error: int):
+        """Handle Prepare request (action=0)."""
+        
+        # Check if already paid
+        if order.status == "paid":
+            return self._response(click_trans_id, merchant_trans_id, order.id, CLICK_ERROR_ALREADY_PAID, "Already paid")
+        
+        # Check if cancelled
+        if order.status == "cancelled":
+            return self._response(click_trans_id, merchant_trans_id, order.id, CLICK_ERROR_TRANSACTION_CANCELLED, "Order cancelled")
+        
+        # Check if order already has a different Click transaction
+        if order.click_trans_id and order.click_trans_id != click_trans_id:
+            # Reset for new transaction
+            pass
+        
+        # Save Click transaction ID
+        order.click_trans_id = click_trans_id
+        order.click_prepare_id = order.id  # We use order.id as prepare_id
+        order.payment_method = "click"
+        order.save(update_fields=["click_trans_id", "click_prepare_id", "payment_method"])
+        
+        return self._response(click_trans_id, merchant_trans_id, order.id, CLICK_ERROR_SUCCESS, "Success")
+    
+    def _handle_complete(self, order: Order, click_trans_id: int, merchant_trans_id: str, merchant_prepare_id: int, error: int):
+        """Handle Complete request (action=1)."""
+        
+        # Check if this is a cancellation from Click
+        if error < 0:
+            # Click is canceling this payment
+            if order.status != "paid":
+                order.status = "cancelled"
+                order.save(update_fields=["status", "updated_at"])
+            return self._response(click_trans_id, merchant_trans_id, merchant_prepare_id, CLICK_ERROR_TRANSACTION_CANCELLED, "Cancelled")
+        
+        # Check if already paid
+        if order.status == "paid":
+            return self._response(click_trans_id, merchant_trans_id, merchant_prepare_id, CLICK_ERROR_ALREADY_PAID, "Already paid")
+        
+        # Check if cancelled
+        if order.status == "cancelled":
+            return self._response(click_trans_id, merchant_trans_id, merchant_prepare_id, CLICK_ERROR_TRANSACTION_CANCELLED, "Order cancelled")
+        
+        # Verify prepare_id matches
+        if order.click_prepare_id != merchant_prepare_id:
+            return self._response(click_trans_id, merchant_trans_id, merchant_prepare_id, CLICK_ERROR_TRANSACTION_NOT_FOUND, "Prepare ID mismatch")
+        
+        # Mark as paid
+        with transaction.atomic():
+            order.status = "paid"
+            order.save(update_fields=["status", "updated_at"])
+            
+            # Update participant
+            if order.participant_id:
+                p = order.participant
+                p.is_paid = True
+                p.paid_at = timezone.now()
+                p.save(update_fields=["is_paid", "paid_at"])
+        
+        return self._response(click_trans_id, merchant_trans_id, merchant_prepare_id, CLICK_ERROR_SUCCESS, "Success")
+
+
+class InitiateClickPaymentView(View):
+    """
+    Create order and return Click payment URL.
+    
+    POST /api/payment/initiate-click/
+    """
+    
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+    
+    def post(self, request: HttpRequest):
+        participant_id = request.session.get("participant_id")
+        if not participant_id:
+            return JsonResponse({"success": False, "error": "Unauthorized"}, status=401)
+        
+        try:
+            participant = Participant.objects.get(id=participant_id)
+        except Participant.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Participant not found"}, status=404)
+        
+        if participant.is_paid:
+            return JsonResponse({"success": False, "error": "Already paid"}, status=400)
+        
+        # Get olympiad_id from request body
+        try:
+            body = json.loads(request.body) if request.body else {}
+        except Exception:
+            body = {}
+        olympiad_id = body.get("olympiad_id")
+
+        if olympiad_id:
+            olympiad = OlympiadSettings.objects.filter(id=olympiad_id, is_active=True).first()
+        else:
+            olympiad = OlympiadSettings.get_active()
+
+        if not olympiad or olympiad.ticket_price <= 0:
+            return JsonResponse({"success": False, "error": "Ticket price not configured"}, status=400)
+        
+        # Cancel any existing pending orders for this participant
+        Order.objects.filter(participant=participant, status="pending").update(status="cancelled")
+        
+        # Create new order
+        order = Order.objects.create(
+            participant=participant,
+            olympiad=olympiad,
+            total_amount=olympiad.ticket_price,
+            status="pending",
+            payment_method="click",
+        )
+        
+        amount_sum = int(olympiad.ticket_price)
+        
+        pay_url = generate_click_pay_link(
+            order_id=order.id,
+            amount=amount_sum,
+            return_url=request.build_absolute_uri("/ticket/"),
+        )
+        
+        return JsonResponse({
+            "success": True,
+            "order_id": order.id,
+            "amount": float(olympiad.ticket_price),
+            "pay_url": pay_url,
         })

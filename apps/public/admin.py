@@ -82,7 +82,6 @@ class OrderAdmin(admin.ModelAdmin):
         "participant",
         "total_amount",
         "status",
-        "payment_method",
         "payme_transaction_id",
         "payme_state",
         "payme_create_time",
@@ -93,10 +92,7 @@ class OrderAdmin(admin.ModelAdmin):
     # Фильтры справа
     list_filter = (
         "status",
-        "payment_method",
         "created_at",
-        "updated_at",
-        "payme_state",
     )
 
     # Поиск сверху (можешь добавить свои поля Participant при необходимости)

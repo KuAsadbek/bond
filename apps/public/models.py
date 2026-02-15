@@ -194,6 +194,14 @@ class Order(models.Model):
         related_name='orders',
         verbose_name="Участник"
     )
+    olympiad = models.ForeignKey(
+        'OlympiadSettings',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders',
+        verbose_name="Олимпиада"
+    )
     total_amount = models.DecimalField(
         max_digits=10, 
         decimal_places=2,
@@ -206,10 +214,11 @@ class Order(models.Model):
         verbose_name="Статус"
     )
     payment_method = models.CharField(
-        max_length=20, 
+        max_length=20,
         default='payme',
         verbose_name="Способ оплаты"
     )
+       
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создан")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Обновлён")
     
@@ -226,6 +235,10 @@ class Order(models.Model):
     payme_cancel_time = models.BigIntegerField(null=True, blank=True, verbose_name="Payme cancel_time (ms)")
     payme_state = models.IntegerField(null=True, blank=True, verbose_name="Payme state")
     payme_cancel_reason = models.IntegerField(null=True, blank=True, verbose_name="Payme cancel reason")
+    
+    # Click specific fields
+    click_trans_id = models.BigIntegerField(null=True, blank=True, verbose_name="Click Transaction ID")
+    click_prepare_id = models.BigIntegerField(null=True, blank=True, verbose_name="Click Prepare ID")
 
     class Meta:
         verbose_name = "Заказ"

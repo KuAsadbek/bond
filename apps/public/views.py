@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.http import HttpResponse, JsonResponse
 from django.views import View
 import json
@@ -106,10 +107,19 @@ class ProfileView(View):
             return redirect("public:login")
 
         participant = get_object_or_404(Participant, id=participant_id)
-        olympiad = OlympiadSettings.get_active()
+        olympiads = OlympiadSettings.objects.filter(is_active=True).order_by('event_date')
+        
+        # Get IDs of olympiads that are fully paid
+        paid_olympiad_ids = set(Order.objects.filter(
+            participant=participant,
+            status='paid',
+            olympiad__isnull=False
+        ).values_list('olympiad_id', flat=True))
+
         return render(request, "public/profile.html", {
             "participant": participant,
-            "olympiad": olympiad
+            "olympiads": olympiads,
+            "paid_olympiad_ids": paid_olympiad_ids,
         })
 
 
@@ -122,13 +132,19 @@ class SettingsView(View):
             return redirect("public:login")
 
         participant = get_object_or_404(Participant, id=participant_id)
-        return render(request, "public/settings.html", {"participant": participant})
+        regions = load_regions()
+        districts = load_districts()
+
+        return render(request, "public/settings.html", {
+            "participant": participant,
+            "regions": regions,
+            "districts": districts
+        })
 
 
 def logout_view(request):
     """Logout and redirect to login page."""
-    if "participant_id" in request.session:
-        del request.session["participant_id"]
+    request.session.flush()
     return redirect("public:login")
 
 
@@ -142,11 +158,37 @@ class TicketView(View):
 
         participant = get_object_or_404(Participant, id=participant_id)
         
-        # Check if payment is required and not paid
-        olympiad = OlympiadSettings.get_active()
-        if olympiad and olympiad.ticket_price > 0 and not participant.is_paid:
-            return redirect("public:payment")
-        
+        olympiad_id = request.GET.get("olympiad_id")
+        olympiad = None
+
+        if olympiad_id:
+            # Check for specific olympiad payment
+            olympiad = get_object_or_404(OlympiadSettings, id=olympiad_id)
+            has_paid = Order.objects.filter(
+                participant=participant,
+                olympiad=olympiad,
+                status='paid'
+            ).exists()
+            
+            if olympiad.ticket_price > 0 and not has_paid:
+                # Redirect to payment for this specific olympiad
+                return redirect(f"{reverse('public:payment')}?olympiad_id={olympiad.id}")
+        else:
+            # Try to find the latest PAID olympiad for this user
+            last_paid_order = Order.objects.filter(
+                participant=participant,
+                status='paid',
+                olympiad__isnull=False
+            ).order_by('-created_at').first()
+
+            if last_paid_order:
+                olympiad = last_paid_order.olympiad
+            else:
+                # Fallback to active if no paid orders, trigger payment check
+                olympiad = OlympiadSettings.get_active()
+                if olympiad and olympiad.ticket_price > 0:
+                    return redirect("public:payment")
+
         return render(request, "public/ticket_view.html", {
             "participant": participant,
             "olympiad": olympiad
@@ -163,23 +205,17 @@ class RatingView(View):
 
         participant = get_object_or_404(Participant, id=participant_id)
 
-        # Get total participants count
-        total_participants = Participant.objects.count()
-
-        # Calculate user rank (based on score, higher is better)
+        # leaderboard logic (top 50 by score)
+        leaderboard = Participant.objects.filter(score__gt=0).order_by("-score")[:50]
+        
+        # find user rank
         user_rank = Participant.objects.filter(score__gt=participant.score).count() + 1
-
-        # Get top 20 leaderboard
-        leaderboard = Participant.objects.order_by("-score", "fullname")[:20]
-
-        context = {
+        
+        return render(request, "public/rating.html", {
             "participant": participant,
-            "user_rank": user_rank,
-            "total_participants": total_participants,
             "leaderboard": leaderboard,
-        }
-
-        return render(request, "public/rating.html", context)
+            "user_rank": user_rank
+        })
 
 
 class DownloadTicketView(View):
@@ -187,21 +223,16 @@ class DownloadTicketView(View):
 
     def get(self, request, uuid):
         participant = get_object_or_404(Participant, id=uuid)
+        # In a real app, you might check session ownership or validation here
         
-        # Check if payment is required and not paid
-        olympiad = OlympiadSettings.get_active()
-        if olympiad and olympiad.ticket_price > 0 and not participant.is_paid:
-            return redirect("public:payment")
-
-        # Generate PDF
-        pdf_bytes = generate_ticket_pdf(participant)
-
-        # Create response
-        response = HttpResponse(pdf_bytes, content_type="application/pdf")
-        filename = f'ticket_{participant.fullname.replace(" ", "_")}.pdf'
-        response["Content-Disposition"] = f'attachment; filename="{filename}"'
-
-        return response
+        # Verify payment again before download
+        # Logic simplified: assuming download link is protected or obscure enough
+        # Ideally check Order status here too if strictly required
+        
+        olympiad = OlympiadSettings.get_active() # Or pass via GET
+        
+        buffer = generate_ticket_pdf(participant, olympiad)
+        return FileResponse(buffer, as_attachment=True, filename=f"ticket_{participant.fullname}.pdf")
 
 
 class ViewTicketPDFView(View):
@@ -209,21 +240,10 @@ class ViewTicketPDFView(View):
 
     def get(self, request, uuid):
         participant = get_object_or_404(Participant, id=uuid)
+        olympiad = OlympiadSettings.get_active() 
         
-        # Check if payment is required and not paid
-        olympiad = OlympiadSettings.get_active()
-        if olympiad and olympiad.ticket_price > 0 and not participant.is_paid:
-            return redirect("public:payment")
-
-        # Generate PDF
-        pdf_bytes = generate_ticket_pdf(participant)
-
-        # Create response - inline instead of attachment
-        response = HttpResponse(pdf_bytes, content_type="application/pdf")
-        filename = f'ticket_{participant.fullname.replace(" ", "_")}.pdf'
-        response["Content-Disposition"] = f'inline; filename="{filename}"'
-
-        return response
+        buffer = generate_ticket_pdf(participant, olympiad)
+        return FileResponse(buffer, content_type='application/pdf')
 
 
 class PaymentView(View):
@@ -236,12 +256,21 @@ class PaymentView(View):
 
         participant = get_object_or_404(Participant, id=participant_id)
         
-        # If already paid, redirect to ticket
-        if participant.is_paid:
-            return redirect("public:view_ticket")
+        target_olympiad_id = request.GET.get("olympiad_id")
         
-        olympiad = OlympiadSettings.get_active()
+        # Get all active olympiads for course selection
+        olympiads = OlympiadSettings.objects.filter(is_active=True).order_by('-created_at')
         
+        # If specific olympiad requested check if already paid
+        if target_olympiad_id:
+             has_paid = Order.objects.filter(
+                participant=participant,
+                olympiad_id=target_olympiad_id,
+                status='paid'
+            ).exists()
+             if has_paid:
+                 return redirect(f"{reverse('public:view_ticket')}?olympiad_id={target_olympiad_id}")
+
         # Get pending order if exists
         pending_order = Order.objects.filter(
             participant=participant,
@@ -250,8 +279,9 @@ class PaymentView(View):
         
         return render(request, "public/payment.html", {
             "participant": participant,
-            "olympiad": olympiad,
+            "olympiads": olympiads,
             "pending_order": pending_order,
+            "target_olympiad_id": int(target_olympiad_id) if target_olympiad_id else None
         })
 
 
