@@ -290,11 +290,13 @@
                             <td class="info-value" style="color: #00bfff;">{{ olympiad.location }}</td>
                         </tr>
                         {% endif %}
-                        {% if participant.subject %}
+                        {% if purchased_subjects %}
                         <tr>
                             <td class="info-label">Fan</td>
                             <td class="info-value">
-                                <span class="subject-badge">{{ participant.subject.name }}</span>
+                                {% for subj in purchased_subjects %}
+                                <span class="subject-badge" style="margin-right: 4px;">{{ subj.name }}</span>
+                                {% endfor %}
                             </td>
                         </tr>
                         {% endif %}

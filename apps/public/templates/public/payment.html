@@ -543,37 +543,49 @@
             <div class="payment-card">
                 <div class="ticket-icon">🎫</div>
 
-                <h1 class="payment-title" data-ru="Выберите курс" data-uz="Kursni tanlang">Выберите курс</h1>
+                <h1 class="payment-title" data-ru="Выберите предметы" data-uz="Fanlarni tanlang">Выберите предметы</h1>
 
-                <p class="payment-desc"
-                    data-ru="Выберите курс, который вы хотите приобрести, и произведите оплату"
-                    data-uz="Sotib olmoqchi bo'lgan kursingizni tanlang va to'lovni amalga oshiring">
-                    Выберите курс, который вы хотите приобрести, и произведите оплату
+                <p class="payment-desc" data-ru="Выберите один или несколько предметов и произведите оплату"
+                    data-uz="Bir yoki bir nechta fanni tanlang va to'lovni amalga oshiring">
+                    Выберите один или несколько предметов и произведите оплату
                 </p>
 
-                <!-- Course Selection -->
+                <!-- Course Selection (multi-select) -->
                 <div class="course-grid">
-                    {% for olympiad in olympiads %}
-                    <div class="course-card" data-olympiad-id="{{ olympiad.id }}" data-price="{{ olympiad.ticket_price|floatformat:0 }}" onclick="selectCourse(this)">
+                    {% for subject in subjects %}
+                    <div class="course-card" data-subject-id="{{ subject.id }}"
+                        data-price="{{ subject.ticket_price|floatformat:0 }}" onclick="toggleCourse(this)">
                         <div class="course-card-check">
-                            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                            <svg viewBox="0 0 24 24">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                            </svg>
                         </div>
                         <div class="course-card-header">
                             <div class="course-card-left">
-                                <div class="course-card-icon">🏆</div>
+                                <div class="course-card-icon">📚</div>
                                 <div class="course-card-info">
-                                    <div class="course-card-name">{{ olympiad.event_name }}</div>
+                                    <div class="course-card-name">{{ subject.name }}</div>
                                     <div class="course-card-details">
-                                        📅 {{ olympiad.event_date|date:"d.m.Y" }} · 📍 {{ olympiad.location }}
+                                        🏆 {{ subject.olympiad.event_name }} · 📅 {{ subject.olympiad.event_date|date:"d.m.Y" }}
                                     </div>
                                 </div>
                             </div>
                             <div class="course-card-price">
-                                {{ olympiad.ticket_price|floatformat:0 }} <span class="currency" data-ru="сум" data-uz="so'm">сум</span>
+                                {{ subject.ticket_price|floatformat:0 }} <span class="currency" data-ru="сум"
+                                    data-uz="so'm">сум</span>
                             </div>
                         </div>
                     </div>
                     {% endfor %}
+                </div>
+
+                <!-- Total amount -->
+                <div class="total-bar" id="total-bar" style="display:none;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span class="total-label" data-ru="Итого" data-uz="Jami">Итого</span>
+                        <span class="total-amount" id="total-amount">0 <span class="currency" data-ru="сум"
+                                data-uz="so'm">сум</span></span>
+                    </div>
                 </div>
 
                 <div class="payment-buttons" id="payment-buttons">
@@ -606,25 +618,85 @@
         </div>
     </div>
 
+    <style>
+        .total-bar {
+            background: rgba(102, 126, 234, 0.12);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 16px;
+            padding: 18px 24px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .total-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .total-amount {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #a8b4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .total-amount .currency {
+            font-size: 14px;
+            font-weight: 600;
+            -webkit-text-fill-color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+
     <script>
-        let selectedOlympiadId = null;
+        let selectedSubjectIds = new Set();
 
         function setLanguage(lang) {
             localStorage.setItem('lang', lang);
             document.querySelectorAll('[data-ru]').forEach(el => {
-                el.textContent = el.getAttribute('data-' + lang);
+                const val = el.getAttribute('data-' + lang);
+                if (val) el.textContent = val;
             });
         }
 
-        function selectCourse(card) {
-            // Deselect all
-            document.querySelectorAll('.course-card').forEach(c => c.classList.remove('selected'));
-            // Select clicked
-            card.classList.add('selected');
-            selectedOlympiadId = card.dataset.olympiadId;
+        function toggleCourse(card) {
+            const subjectId = card.dataset.subjectId;
 
-            // Show payment buttons
-            document.getElementById('payment-buttons').classList.add('visible');
+            if (card.classList.contains('selected')) {
+                card.classList.remove('selected');
+                selectedSubjectIds.delete(subjectId);
+            } else {
+                card.classList.add('selected');
+                selectedSubjectIds.add(subjectId);
+            }
+
+            updateTotal();
+        }
+
+        function updateTotal() {
+            const totalBar = document.getElementById('total-bar');
+            const totalEl = document.getElementById('total-amount');
+            const payButtons = document.getElementById('payment-buttons');
+
+            let total = 0;
+            selectedSubjectIds.forEach(id => {
+                const card = document.querySelector(`.course-card[data-subject-id="${id}"]`);
+                if (card) total += parseInt(card.dataset.price) || 0;
+            });
+
+            const savedLang = localStorage.getItem('lang') || 'ru';
+            const currencyText = savedLang === 'ru' ? 'сум' : "so'm";
+
+            if (selectedSubjectIds.size > 0) {
+                totalBar.style.display = 'block';
+                totalEl.innerHTML = `${total.toLocaleString()} <span class="currency">${currencyText}</span>`;
+                payButtons.classList.add('visible');
+            } else {
+                totalBar.style.display = 'none';
+                payButtons.classList.remove('visible');
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -634,19 +706,21 @@
             // Auto-select if only one course
             const cards = document.querySelectorAll('.course-card');
             if (cards.length === 1) {
-                selectCourse(cards[0]);
+                toggleCourse(cards[0]);
             }
 
-            // Check if returned from payment
+            // Check if returned from payment gateway
             const referrer = document.referrer.toLowerCase();
             const urlParams = new URLSearchParams(window.location.search);
-            const fromPayme = referrer.includes('paycom') ||
+            const fromPaymentGateway = referrer.includes('paycom') ||
                 referrer.includes('payme') ||
-                urlParams.has('payment_callback') ||
-                sessionStorage.getItem('payment_initiated');
+                urlParams.has('payment_callback');
 
-            if (fromPayme) {
+            if (fromPaymentGateway) {
                 startPaymentStatusPolling();
+            } else {
+                // Clear stale payment state if not coming from gateway
+                sessionStorage.removeItem('payment_initiated');
             }
         });
 
@@ -712,10 +786,15 @@
             }
         }
 
+        function getSelectedIds() {
+            return Array.from(selectedSubjectIds).map(Number);
+        }
+
         async function initiatePayment() {
-            if (!selectedOlympiadId) {
+            const ids = getSelectedIds();
+            if (ids.length === 0) {
                 const savedLang = localStorage.getItem('lang') || 'ru';
-                alert(savedLang === 'ru' ? 'Пожалуйста, выберите курс' : "Iltimos, kursni tanlang");
+                alert(savedLang === 'ru' ? 'Пожалуйста, выберите предмет' : "Iltimos, fanni tanlang");
                 return;
             }
 
@@ -730,7 +809,7 @@
                         'Content-Type': 'application/json',
                     },
                     credentials: 'same-origin',
-                    body: JSON.stringify({ olympiad_id: selectedOlympiadId })
+                    body: JSON.stringify({ subject_ids: ids })
                 });
 
                 const data = await response.json();
@@ -752,9 +831,10 @@
         }
 
         async function initiateClickPayment() {
-            if (!selectedOlympiadId) {
+            const ids = getSelectedIds();
+            if (ids.length === 0) {
                 const savedLang = localStorage.getItem('lang') || 'ru';
-                alert(savedLang === 'ru' ? 'Пожалуйста, выберите курс' : "Iltimos, kursni tanlang");
+                alert(savedLang === 'ru' ? 'Пожалуйста, выберите предмет' : "Iltimos, fanni tanlang");
                 return;
             }
 
@@ -769,7 +849,7 @@
                         'Content-Type': 'application/json',
                     },
                     credentials: 'same-origin',
-                    body: JSON.stringify({ olympiad_id: selectedOlympiadId })
+                    body: JSON.stringify({ subject_ids: ids })
                 });
 
                 const data = await response.json();

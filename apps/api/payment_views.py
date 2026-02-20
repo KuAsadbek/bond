@@ -23,7 +23,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.utils import timezone
 
-from apps.public.models import Order, Participant, OlympiadSettings
+from apps.public.models import Order, Participant, OlympiadSettings, Subject
 
 # Payme / Paycom error codes (commonly used)
 
@@ -84,43 +84,54 @@ class InitiatePaymentView(View):
         if participant.is_paid:
             return JsonResponse({"success": False, "error": "Already paid"}, status=400)
 
-        # Get olympiad_id from request body
+        # Get subject_ids from request body
         try:
             body = json.loads(request.body) if request.body else {}
         except Exception:
             body = {}
-        olympiad_id = body.get("olympiad_id")
+        subject_ids = body.get("subject_ids", [])
 
-        if olympiad_id:
-            olympiad = OlympiadSettings.objects.filter(id=olympiad_id, is_active=True).first()
-        else:
-            olympiad = OlympiadSettings.get_active()
+        if not subject_ids:
+            return JsonResponse({"success": False, "error": "No subjects selected"}, status=400)
 
-        if not olympiad or olympiad.ticket_price <= 0:
-            return JsonResponse({"success": False, "error": "Ticket price not configured"}, status=400)
+        subjects = Subject.objects.select_related('olympiad').filter(
+            id__in=subject_ids, olympiad__is_active=True, ticket_price__gt=0
+        )
+
+        if not subjects.exists():
+            return JsonResponse({"success": False, "error": "Subjects not found"}, status=404)
+
+        total_amount = sum(s.ticket_price for s in subjects)
+        olympiad = subjects.first().olympiad
 
         # Cancel any existing pending orders for this participant
         Order.objects.filter(participant=participant, status="pending").update(status="cancelled")
 
-        order = Order.objects.create(
-            participant=participant,
-            olympiad=olympiad,
-            total_amount=olympiad.ticket_price,
-            status="pending",
-            payment_method="payme",
-        )
+        # Create one order per subject
+        first_order = None
+        for subj in subjects:
+            order = Order.objects.create(
+                participant=participant,
+                olympiad=subj.olympiad,
+                subject=subj,
+                total_amount=subj.ticket_price,
+                status="pending",
+                payment_method="payme",
+            )
+            if first_order is None:
+                first_order = order
 
-        amount_tiyin = int(olympiad.ticket_price * 100)
+        amount_tiyin = int(total_amount * 100)
         pay_url = generate_pay_link(
-            order_id=order.id,
+            order_id=first_order.id,
             amount_tiyin=amount_tiyin,
             return_url=request.build_absolute_uri("/ticket/"),
         )
 
         return JsonResponse({
             "success": True,
-            "order_id": order.id,
-            "amount": float(olympiad.ticket_price),
+            "order_id": first_order.id,
+            "amount": float(total_amount),
             "pay_url": pay_url,
         })
 
@@ -765,44 +776,54 @@ class InitiateClickPaymentView(View):
         if participant.is_paid:
             return JsonResponse({"success": False, "error": "Already paid"}, status=400)
         
-        # Get olympiad_id from request body
+        # Get subject_ids from request body
         try:
             body = json.loads(request.body) if request.body else {}
         except Exception:
             body = {}
-        olympiad_id = body.get("olympiad_id")
+        subject_ids = body.get("subject_ids", [])
 
-        if olympiad_id:
-            olympiad = OlympiadSettings.objects.filter(id=olympiad_id, is_active=True).first()
-        else:
-            olympiad = OlympiadSettings.get_active()
+        if not subject_ids:
+            return JsonResponse({"success": False, "error": "No subjects selected"}, status=400)
 
-        if not olympiad or olympiad.ticket_price <= 0:
-            return JsonResponse({"success": False, "error": "Ticket price not configured"}, status=400)
+        subjects = Subject.objects.select_related('olympiad').filter(
+            id__in=subject_ids, olympiad__is_active=True, ticket_price__gt=0
+        )
+
+        if not subjects.exists():
+            return JsonResponse({"success": False, "error": "Subjects not found"}, status=404)
+
+        total_amount = sum(s.ticket_price for s in subjects)
+        olympiad = subjects.first().olympiad
         
         # Cancel any existing pending orders for this participant
         Order.objects.filter(participant=participant, status="pending").update(status="cancelled")
         
-        # Create new order
-        order = Order.objects.create(
-            participant=participant,
-            olympiad=olympiad,
-            total_amount=olympiad.ticket_price,
-            status="pending",
-            payment_method="click",
-        )
+        # Create one order per subject
+        first_order = None
+        for subj in subjects:
+            order = Order.objects.create(
+                participant=participant,
+                olympiad=subj.olympiad,
+                subject=subj,
+                total_amount=subj.ticket_price,
+                status="pending",
+                payment_method="click",
+            )
+            if first_order is None:
+                first_order = order
         
-        amount_sum = int(olympiad.ticket_price)
+        amount_sum = int(total_amount)
         
         pay_url = generate_click_pay_link(
-            order_id=order.id,
+            order_id=first_order.id,
             amount=amount_sum,
             return_url=request.build_absolute_uri("/ticket/"),
         )
         
         return JsonResponse({
             "success": True,
-            "order_id": order.id,
-            "amount": float(olympiad.ticket_price),
+            "order_id": first_order.id,
+            "amount": float(total_amount),
             "pay_url": pay_url,
         })

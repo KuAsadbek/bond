@@ -36,7 +36,6 @@ class ParticipantRegistrationForm(forms.ModelForm):
             "school",
             "grade",
             "teacher_fullname",
-            "subject",
             "test_language",
         ]
         widgets = {
@@ -88,12 +87,7 @@ class ParticipantRegistrationForm(forms.ModelForm):
                     "required": True,
                 }
             ),
-            "subject": forms.Select(
-                attrs={
-                    "class": "form-input",
-                    "required": True,
-                }
-            ),
+
             "test_language": forms.Select(
                 attrs={
                     "class": "form-input",

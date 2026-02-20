@@ -7,7 +7,7 @@ import os
 import requests
 from django.conf import settings
 
-from .models import Participant, PhoneVerification, OlympiadSettings, Order
+from .models import Participant, PhoneVerification, OlympiadSettings, Order, Subject
 from .forms import ParticipantRegistrationForm, LoginForm
 from .utils import generate_ticket_pdf
 
@@ -103,23 +103,37 @@ class ProfileView(View):
 
     def get(self, request):
         participant_id = request.session.get("participant_id")
-        if not participant_id:
-            return redirect("public:login")
+        participant = None
+        paid_olympiad_ids = set()
+        has_unpaid_subjects = set()
 
-        participant = get_object_or_404(Participant, id=participant_id)
+        if participant_id:
+            participant = get_object_or_404(Participant, id=participant_id)
+            
+            # Get IDs of olympiads that have at least one paid order
+            paid_olympiad_ids = set(Order.objects.filter(
+                participant=participant,
+                status='paid',
+                olympiad__isnull=False
+            ).values_list('olympiad_id', flat=True))
+            
+            # Check which paid olympiads still have un-purchased subjects
+            for oid in paid_olympiad_ids:
+                total_subjects = Subject.objects.filter(olympiad_id=oid, ticket_price__gt=0).count()
+                purchased_subjects = Order.objects.filter(
+                    participant=participant, olympiad_id=oid, status='paid',
+                    subject__isnull=False
+                ).values_list('subject_id', flat=True).distinct().count()
+                if purchased_subjects < total_subjects:
+                    has_unpaid_subjects.add(oid)
+
         olympiads = OlympiadSettings.objects.filter(is_active=True).order_by('event_date')
-        
-        # Get IDs of olympiads that are fully paid
-        paid_olympiad_ids = set(Order.objects.filter(
-            participant=participant,
-            status='paid',
-            olympiad__isnull=False
-        ).values_list('olympiad_id', flat=True))
 
         return render(request, "public/profile.html", {
             "participant": participant,
             "olympiads": olympiads,
             "paid_olympiad_ids": paid_olympiad_ids,
+            "has_unpaid_subjects": has_unpaid_subjects,
         })
 
 
@@ -145,7 +159,7 @@ class SettingsView(View):
 def logout_view(request):
     """Logout and redirect to login page."""
     request.session.flush()
-    return redirect("public:login")
+    return redirect("public:home")
 
 
 class TicketView(View):
@@ -170,7 +184,9 @@ class TicketView(View):
                 status='paid'
             ).exists()
             
-            if olympiad.ticket_price > 0 and not has_paid:
+            # Check if any subject has a price > 0 for this olympiad
+            has_priced_subject = Subject.objects.filter(olympiad=olympiad, ticket_price__gt=0).exists()
+            if has_priced_subject and not has_paid:
                 # Redirect to payment for this specific olympiad
                 return redirect(f"{reverse('public:payment')}?olympiad_id={olympiad.id}")
         else:
@@ -186,12 +202,22 @@ class TicketView(View):
             else:
                 # Fallback to active if no paid orders, trigger payment check
                 olympiad = OlympiadSettings.get_active()
-                if olympiad and olympiad.ticket_price > 0:
+                if olympiad and Subject.objects.filter(olympiad=olympiad, ticket_price__gt=0).exists():
                     return redirect("public:payment")
+
+        # Get all purchased subjects for this olympiad
+        purchased_subjects = []
+        if olympiad:
+            purchased_subjects = Subject.objects.filter(
+                orders__participant=participant,
+                orders__olympiad=olympiad,
+                orders__status='paid'
+            ).distinct()
 
         return render(request, "public/ticket_view.html", {
             "participant": participant,
-            "olympiad": olympiad
+            "olympiad": olympiad,
+            "purchased_subjects": purchased_subjects,
         })
 
 
@@ -258,18 +284,36 @@ class PaymentView(View):
         
         target_olympiad_id = request.GET.get("olympiad_id")
         
-        # Get all active olympiads for course selection
-        olympiads = OlympiadSettings.objects.filter(is_active=True).order_by('-created_at')
+        # Get subjects with prices — filter by olympiad if specified
+        subject_qs = Subject.objects.filter(
+            olympiad__is_active=True, 
+            ticket_price__gt=0
+        ).select_related('olympiad')
         
-        # If specific olympiad requested check if already paid
         if target_olympiad_id:
-             has_paid = Order.objects.filter(
+            subject_qs = subject_qs.filter(olympiad_id=target_olympiad_id)
+        
+        # Exclude subjects already purchased by this participant
+        purchased_subject_ids = Order.objects.filter(
+            participant=participant,
+            status='paid',
+            subject__isnull=False
+        ).values_list('subject_id', flat=True)
+        
+        subjects = subject_qs.exclude(id__in=purchased_subject_ids).order_by('olympiad__event_date', 'name')
+        
+        # If specific olympiad requested, redirect only if ALL subjects are paid
+        if target_olympiad_id:
+            total_subjects = Subject.objects.filter(
+                olympiad_id=target_olympiad_id, ticket_price__gt=0
+            ).count()
+            paid_orders = Order.objects.filter(
                 participant=participant,
                 olympiad_id=target_olympiad_id,
                 status='paid'
-            ).exists()
-             if has_paid:
-                 return redirect(f"{reverse('public:view_ticket')}?olympiad_id={target_olympiad_id}")
+            ).count()
+            if total_subjects > 0 and paid_orders >= total_subjects:
+                return redirect(f"{reverse('public:view_ticket')}?olympiad_id={target_olympiad_id}")
 
         # Get pending order if exists
         pending_order = Order.objects.filter(
@@ -279,7 +323,7 @@ class PaymentView(View):
         
         return render(request, "public/payment.html", {
             "participant": participant,
-            "olympiads": olympiads,
+            "subjects": subjects,
             "pending_order": pending_order,
             "target_olympiad_id": int(target_olympiad_id) if target_olympiad_id else None
         })

@@ -68,6 +68,153 @@
     </div>
 </div>
 
+<!-- Olympiad Statistics Section -->
+<div class="section-header" style="margin-bottom: 24px;">
+    <h2 style="font-size: 22px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-trophy" style="color: var(--warning);"></i>
+        Olimpiadalar statistikasi
+    </h2>
+    <p style="color: var(--gray-400); margin-top: 4px;">Har bir olimpiada bo'yicha batafsil ma'lumotlar</p>
+</div>
+
+<!-- Olympiad Summary Cards -->
+<div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 24px;">
+    <div class="card stat-card" style="background: rgba(30, 41, 59, 0.8);">
+        <div class="stat-icon" style="background: rgba(245, 158, 11, 0.2); color: var(--warning);">
+            <i class="fas fa-trophy"></i>
+        </div>
+        <div class="stat-value">{{ total_olympiads }}</div>
+        <div class="stat-label">Jami olimpiadalar</div>
+    </div>
+    <div class="card stat-card success">
+        <div class="stat-icon">
+            <i class="fas fa-receipt"></i>
+        </div>
+        <div class="stat-value">{{ total_paid_orders }}</div>
+        <div class="stat-label">To'langan buyurtmalar</div>
+    </div>
+    <div class="card stat-card" style="background: rgba(30, 41, 59, 0.8);">
+        <div class="stat-icon" style="background: rgba(14, 165, 233, 0.2); color: var(--secondary);">
+            <i class="fas fa-calendar-alt"></i>
+        </div>
+        <div class="stat-value">{{ total_participants }}</div>
+        <div class="stat-label">Jami ishtirokchilar</div>
+    </div>
+</div>
+
+<!-- Per-Olympiad Cards -->
+{% for stat in olympiad_stats %}
+<div class="card" style="margin-bottom: 24px; position: relative; overflow: hidden;">
+    <!-- Top accent bar -->
+    <div
+        style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, {% if stat.is_upcoming %}var(--primary) 0%, var(--secondary) 100%{% else %}var(--gray-500) 0%, var(--gray-600) 100%{% endif %});">
+    </div>
+
+    <!-- Olympiad Header -->
+    <div
+        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <div
+                style="width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: {% if stat.is_upcoming %}linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%){% else %}rgba(100, 116, 139, 0.3){% endif %};">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div>
+                <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 2px;">{{ stat.olympiad.event_name }}</h3>
+                <span style="color: var(--gray-400); font-size: 13px;">
+                    <i class="fas fa-calendar-day"></i>
+                    {{ stat.olympiad.event_date|date:"d.m.Y H:i" }}
+                    &nbsp;·&nbsp;
+                    <i class="fas fa-map-marker-alt"></i>
+                    {{ stat.olympiad.location }}
+                </span>
+            </div>
+        </div>
+        <div>
+            {% if stat.is_upcoming %}
+            <span class="badge"
+                style="background: rgba(99, 102, 241, 0.2); color: var(--primary-light); padding: 6px 14px; font-size: 13px;">
+                <i class="fas fa-clock"></i>&nbsp; Bo'lajak
+            </span>
+            {% elif stat.olympiad.is_active %}
+            <span class="badge badge-success" style="padding: 6px 14px; font-size: 13px;">
+                <i class="fas fa-check-circle"></i>&nbsp; Faol
+            </span>
+            {% else %}
+            <span class="badge"
+                style="background: rgba(100, 116, 139, 0.2); color: var(--gray-400); padding: 6px 14px; font-size: 13px;">
+                <i class="fas fa-archive"></i>&nbsp; Yakunlangan
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 20px;">
+        <div
+            style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 10px; padding: 16px;">
+            <div
+                style="color: var(--gray-400); font-size: 12px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                Ishtirokchilar</div>
+            <div style="font-size: 28px; font-weight: 700; color: var(--primary-light);">{{ stat.participant_count }}
+            </div>
+        </div>
+        <div
+            style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 10px; padding: 16px;">
+            <div
+                style="color: var(--gray-400); font-size: 12px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                Kelganlar</div>
+            <div style="font-size: 28px; font-weight: 700; color: var(--success);">{{ stat.checked_in_count }}</div>
+            <div class="progress-bar" style="margin-top: 8px;">
+                <div class="progress-fill" style="width: {{ stat.checkin_rate }}%"></div>
+            </div>
+            <div style="font-size: 11px; color: var(--gray-400); margin-top: 4px;">{{ stat.checkin_rate }}% keldi</div>
+        </div>
+        <div
+            style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 10px; padding: 16px;">
+            <div
+                style="color: var(--gray-400); font-size: 12px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                Kutmoqda</div>
+            <div style="font-size: 28px; font-weight: 700; color: var(--warning);">{{ stat.pending_orders }}</div>
+            <div style="font-size: 11px; color: var(--gray-400); margin-top: 4px;">to'lanmagan buyurtmalar</div>
+        </div>
+        <div
+            style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.2); border-radius: 10px; padding: 16px;">
+            <div
+                style="color: var(--gray-400); font-size: 12px; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                Daromad</div>
+            <div style="font-size: 24px; font-weight: 700; color: var(--secondary);">{{ stat.total_revenue|floatformat:0 }}</div>
+            <div style="font-size: 11px; color: var(--gray-400); margin-top: 4px;">so'm</div>
+        </div>
+    </div>
+
+    <!-- Subject Breakdown -->
+    {% if stat.subjects_stats %}
+    <div>
+        <h4
+            style="font-size: 13px; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+            <i class="fas fa-book"></i>&nbsp; Fanlar bo'yicha
+        </h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+            {% for subj in stat.subjects_stats %}
+            <div
+                style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 8px;">
+                <span style="font-weight: 500; font-size: 14px;">{{ subj.name }}</span>
+                <span
+                    style="background: rgba(99, 102, 241, 0.2); color: var(--primary-light); padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;">{{ subj.paid_count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% empty %}
+<div class="card" style="text-align: center; padding: 40px; margin-bottom: 24px;">
+    <i class="fas fa-trophy" style="font-size: 48px; color: var(--gray-500); margin-bottom: 16px;"></i>
+    <p style="color: var(--gray-400); font-size: 16px;">Olimpiadalar hali qo'shilmagan</p>
+</div>
+{% endfor %}
+
 <!-- Charts Row -->
 <div class="charts-grid">
     <!-- By Subject -->

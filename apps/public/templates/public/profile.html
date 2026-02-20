@@ -317,36 +317,27 @@
             }
         }
 
-        /* Event Slider */
-        .event-slider-wrapper {
-            max-width: 650px;
+        /* Event List Wrapper */
+        .event-list-wrapper {
             width: 100%;
-            margin: 30px 0 40px;
-            position: relative;
-            padding: 0 25px;
+            max-width: 1200px;
+            margin: 30px auto 40px;
+            padding: 0 20px;
         }
 
-        .event-slider {
-            overflow: hidden;
-            border-radius: 24px;
-            width: 100%;
-        }
-
-        .event-slider-track {
+        .event-list {
             display: flex;
-            transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
-            will-change: transform;
-            width: 100%;
+            flex-wrap: wrap;
+            gap: 24px;
+            justify-content: center;
         }
 
-        .event-slide {
-            width: 100%;
-            min-width: 100%;
-            flex-shrink: 0;
-            box-sizing: border-box;
+        .event-item {
+            flex: 1;
+            min-width: 300px;
+            max-width: 600px;
         }
 
-        /* Event Card */
         .event-card {
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
             border: 1px solid rgba(102, 126, 234, 0.2);
@@ -825,6 +816,7 @@
                     <button class="lang-btn" data-lang="uz" onclick="setLanguage('uz')">UZ</button>
                 </div>
 
+                {% if participant %}
                 <div class="user-menu">
                     <div class="user-avatar">👤</div>
                     <div class="dropdown">
@@ -836,90 +828,95 @@
                         </a>
                     </div>
                 </div>
+                {% else %}
+                <div class="auth-buttons" style="display: flex; gap: 10px;">
+                    <a href="{% url 'public:login' %}" class="btn-ticket" style="padding: 8px 20px; font-size: 14px;">
+                        <span data-ru="Войти" data-uz="Kirish">Войти</span>
+                    </a>
+                    <a href="{% url 'public:register' %}" class="btn-buy" style="padding: 8px 20px; font-size: 14px;">
+                        <span data-ru="Регистрация" data-uz="Ro'yxatdan o'tish">Регистрация</span>
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </nav>
 
         <!-- Hero Section -->
         <div class="hero">
             <div class="greeting">
+                {% if participant %}
                 <div class="greeting-label" data-ru="Добро пожаловать" data-uz="Xush kelibsiz">Добро пожаловать</div>
                 <div class="greeting-name">{{ participant.fullname }}</div>
+                {% else %}
+                <div class="greeting-label" data-ru="Добро пожаловать в" data-uz="Xush kelibsiz">Добро пожаловать в
+                </div>
+                <div class="greeting-name">Bond & Data</div>
+                {% endif %}
             </div>
 
             {% if olympiads %}
-            <div class="event-slider-wrapper" id="eventSliderWrapper">
-                <div class="event-slider">
-                    <div class="event-slider-track" id="sliderTrack">
-                        {% for olympiad in olympiads %}
-                        <div class="event-slide">
-                            <div class="event-card">
-                                <div class="event-title">{{ olympiad.event_name }}</div>
-                                <div class="event-meta">
-                                    <div class="event-meta-item">
-                                        <span class="icon">📅</span>
-                                        <span>{{ olympiad.event_date|date:"d.m.Y" }}</span>
-                                    </div>
-                                    <div class="event-meta-item">
-                                        <span class="icon">🕒</span>
-                                        <span>{{ olympiad.event_date|time:"H:i" }}</span>
-                                    </div>
-                                    <div class="event-meta-item">
-                                        <span class="icon">📍</span>
-                                        <span title="{{ olympiad.location }}">{{ olympiad.location }}</span>
-                                    </div>
+            <div class="event-list-wrapper">
+                <div class="event-list">
+                    {% for olympiad in olympiads %}
+                    <div class="event-item">
+                        <div class="event-card">
+                            <div class="event-title">{{ olympiad.event_name }}</div>
+                            <div class="event-meta">
+                                <div class="event-meta-item">
+                                    <span class="icon">📅</span>
+                                    <span>{{ olympiad.event_date|date:"d.m.Y" }}</span>
                                 </div>
-
-                                <div class="countdown" id="countdown-{{ forloop.counter0 }}">
-                                    <div class="countdown-item">
-                                        <div class="countdown-number" id="days-{{ forloop.counter0 }}">00</div>
-                                        <div class="countdown-label">Дней</div>
-                                    </div>
-                                    <div class="countdown-item">
-                                        <div class="countdown-number" id="hours-{{ forloop.counter0 }}">00</div>
-                                        <div class="countdown-label">Часов</div>
-                                    </div>
-                                    <div class="countdown-item">
-                                        <div class="countdown-number" id="minutes-{{ forloop.counter0 }}">00</div>
-                                        <div class="countdown-label">Минут</div>
-                                    </div>
-                                    <div class="countdown-item">
-                                        <div class="countdown-number" id="seconds-{{ forloop.counter0 }}">00</div>
-                                        <div class="countdown-label">Секунд</div>
-                                    </div>
+                                <div class="event-meta-item">
+                                    <span class="icon">🕒</span>
+                                    <span>{{ olympiad.event_date|time:"H:i" }}</span>
                                 </div>
-
-                                <div class="slide-actions"
-                                    style="margin-top: 25px; display: flex; justify-content: center; gap: 15px;">
-                                    {% if olympiad.id in paid_olympiad_ids %}
-                                    <a href="{% url 'public:view_ticket' %}?olympiad_id={{ olympiad.id }}"
-                                        class="btn-ticket">
-                                        <span>🎫</span> Мой билет
-                                    </a>
-                                    {% else %}
-                                    <a href="{% url 'public:payment' %}?olympiad_id={{ olympiad.id }}" class="btn-buy">
-                                        <span>🎟️</span> Купить билет
-                                    </a>
-                                    {% endif %}
+                                <div class="event-meta-item">
+                                    <span class="icon">📍</span>
+                                    <span title="{{ olympiad.location }}">{{ olympiad.location }}</span>
                                 </div>
                             </div>
+
+                            <div class="countdown" id="countdown-{{ forloop.counter0 }}">
+                                <div class="countdown-item">
+                                    <div class="countdown-number" id="days-{{ forloop.counter0 }}">00</div>
+                                    <div class="countdown-label">Дней</div>
+                                </div>
+                                <div class="countdown-item">
+                                    <div class="countdown-number" id="hours-{{ forloop.counter0 }}">00</div>
+                                    <div class="countdown-label">Часов</div>
+                                </div>
+                                <div class="countdown-item">
+                                    <div class="countdown-number" id="minutes-{{ forloop.counter0 }}">00</div>
+                                    <div class="countdown-label">Минут</div>
+                                </div>
+                                <div class="countdown-item">
+                                    <div class="countdown-number" id="seconds-{{ forloop.counter0 }}">00</div>
+                                    <div class="countdown-label">Секунд</div>
+                                </div>
+                            </div>
+
+                            <div class="slide-actions"
+                                style="margin-top: 25px; display: flex; justify-content: center; gap: 15px;">
+                                {% if olympiad.id in paid_olympiad_ids %}
+                                <a href="{% url 'public:view_ticket' %}?olympiad_id={{ olympiad.id }}"
+                                    class="btn-ticket">
+                                    <span>🎫</span> Мой билет
+                                </a>
+                                {% if olympiad.id in has_unpaid_subjects %}
+                                <a href="{% url 'public:payment' %}?olympiad_id={{ olympiad.id }}" class="btn-buy">
+                                    <span>🎟️</span> Купить ещё
+                                </a>
+                                {% endif %}
+                                {% else %}
+                                <a href="{% url 'public:payment' %}?olympiad_id={{ olympiad.id }}" class="btn-buy">
+                                    <span>🎟️</span> Купить билет
+                                </a>
+                                {% endif %}
+                            </div>
                         </div>
-                        {% endfor %}
                     </div>
-                </div>
-
-                {% if olympiads|length > 1 %}
-                <div class="slider-arrows">
-                    <button class="slider-arrow" id="sliderPrev">‹</button>
-                    <button class="slider-arrow" id="sliderNext">›</button>
-                </div>
-
-                <div class="slider-dots">
-                    {% for olympiad in olympiads %}
-                    <button class="slider-dot{% if forloop.first %} active{% endif %}"
-                        onclick="goToSlide({{ forloop.counter0 }})"></button>
                     {% endfor %}
                 </div>
-                {% endif %}
             </div>
             {% endif %}
 
@@ -961,7 +958,6 @@
             setLanguage(savedLang);
 
             // Countdown timers for each olympiad
-            {% if olympiads %}
             const olympiadDates = [
                 {% for olympiad in olympiads %}
                 new Date("{{ olympiad.event_date|date:'c' }}"){% if not forloop.last %}, {% endif %}
@@ -1007,84 +1003,7 @@
         updateAllCountdowns();
         setInterval(updateAllCountdowns, 1000);
 
-        // Slider logic
-        const totalSlides = olympiadDates.length;
-        if (totalSlides > 1) {
-            const track = document.getElementById('sliderTrack');
-            const dots = document.querySelectorAll('.slider-dot');
-            const counter = document.getElementById('sliderCounter');
-            const prevBtn = document.getElementById('sliderPrev');
-            const nextBtn = document.getElementById('sliderNext');
-            let currentSlide = 0;
-            let autoPlayInterval;
 
-            function goToSlide(index) {
-                if (index < 0) index = totalSlides - 1;
-                if (index >= totalSlides) index = 0;
-                currentSlide = index;
-                track.style.transform = 'translateX(-' + (currentSlide * 100) + '%)';
-                dots.forEach(function (dot, i) {
-                    dot.classList.toggle('active', i === currentSlide);
-                });
-                if (counter) {
-                    counter.textContent = (currentSlide + 1) + ' / ' + totalSlides;
-                }
-            }
-
-            prevBtn.addEventListener('click', function () {
-                goToSlide(currentSlide - 1);
-                resetAutoPlay();
-            });
-
-            nextBtn.addEventListener('click', function () {
-                goToSlide(currentSlide + 1);
-                resetAutoPlay();
-            });
-
-            dots.forEach(function (dot) {
-                dot.addEventListener('click', function () {
-                    goToSlide(parseInt(this.dataset.index));
-                    resetAutoPlay();
-                });
-            });
-
-            // Swipe support for mobile
-            let touchStartX = 0;
-            let touchEndX = 0;
-            const slider = document.querySelector('.event-slider');
-
-            slider.addEventListener('touchstart', function (e) {
-                touchStartX = e.changedTouches[0].screenX;
-            }, { passive: true });
-
-            slider.addEventListener('touchend', function (e) {
-                touchEndX = e.changedTouches[0].screenX;
-                const swipeDistance = touchStartX - touchEndX;
-                if (Math.abs(swipeDistance) > 50) {
-                    if (swipeDistance > 0) {
-                        goToSlide(currentSlide + 1);
-                    } else {
-                        goToSlide(currentSlide - 1);
-                    }
-                    resetAutoPlay();
-                }
-            }, { passive: true });
-
-            // Auto-play
-            function startAutoPlay() {
-                autoPlayInterval = setInterval(function () {
-                    goToSlide(currentSlide + 1);
-                }, 8000);
-            }
-
-            function resetAutoPlay() {
-                clearInterval(autoPlayInterval);
-                startAutoPlay();
-            }
-
-            startAutoPlay();
-        }
-        {% endif %}
         });
     </script>
 </body>

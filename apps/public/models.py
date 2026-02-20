@@ -2,11 +2,24 @@ from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 import uuid
 
-
 class Subject(models.Model):
     """Subject model for participant subject selection."""
 
     name = models.CharField(max_length=100, verbose_name="Название предмета")
+    olympiad = models.ForeignKey(
+        'OlympiadSettings',
+        on_delete=models.CASCADE,
+        related_name='subjects',
+        verbose_name="Олимпиада",
+        null=True,
+        blank=True,
+    )
+    ticket_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        verbose_name="Стоимость билета (сум)"
+    )
 
     class Meta:
         verbose_name = "Предмет"
@@ -14,7 +27,8 @@ class Subject(models.Model):
         ordering = ["name"]
 
     def __str__(self):
-        return self.name
+        olympiad_name = self.olympiad.event_name if self.olympiad else 'Без олимпиады'
+        return f"{self.name} ({olympiad_name}) - {self.ticket_price} сум"
 
 
 class Participant(models.Model):
@@ -44,13 +58,7 @@ class Participant(models.Model):
         choices=GRADE_CHOICES, verbose_name="Класс"
     )
     teacher_fullname = models.CharField(max_length=255, verbose_name="ФИО учителя")
-    subject = models.ForeignKey(
-        Subject,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name="Предмет",
-    )
+
     test_language = models.CharField(
         max_length=2,
         choices=LANGUAGE_CHOICES,
@@ -129,12 +137,7 @@ class OlympiadSettings(models.Model):
         default="BOND Olimpiadasi", 
         verbose_name="Название мероприятия"
     )
-    ticket_price = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        default=0,
-        verbose_name="Стоимость билета (сум)"
-    )
+
     event_date = models.DateTimeField(
         verbose_name="Дата и время начала"
     )
@@ -201,6 +204,14 @@ class Order(models.Model):
         blank=True,
         related_name='orders',
         verbose_name="Олимпиада"
+    )
+    subject = models.ForeignKey(
+        Subject,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders',
+        verbose_name="Предмет"
     )
     total_amount = models.DecimalField(
         max_digits=10, 

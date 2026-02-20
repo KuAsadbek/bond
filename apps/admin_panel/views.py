@@ -3,12 +3,12 @@ from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Sum
 from django.db.models.functions import TruncDate
 from django.http import JsonResponse
 from django.utils import timezone
 
-from apps.public.models import Participant, Subject
+from apps.public.models import Participant, Subject, OlympiadSettings, Order
 
 
 class AdminLoginView(View):
@@ -57,9 +57,11 @@ class DashboardView(LoginRequiredMixin, View):
             else 0
         )
 
-        # Participants by subject
+        # Participants by subject (through Order model)
         by_subject = (
-            Subject.objects.annotate(participant_count=Count("participant"))
+            Subject.objects.annotate(
+                participant_count=Count("orders__participant", distinct=True)
+            )
             .filter(participant_count__gt=0)
             .order_by("-participant_count")
         )
@@ -95,6 +97,70 @@ class DashboardView(LoginRequiredMixin, View):
         ru_count = Participant.objects.filter(test_language='ru').count()
         uz_count = Participant.objects.filter(test_language='uz').count()
 
+        # Olympiad statistics
+        now = timezone.now()
+        olympiads = OlympiadSettings.objects.all().order_by('-event_date')
+        olympiad_stats = []
+        for olympiad in olympiads:
+            # Participants who have paid orders for this olympiad
+            paid_orders = Order.objects.filter(
+                olympiad=olympiad, status='paid'
+            )
+            participant_ids = paid_orders.values_list(
+                'participant_id', flat=True
+            ).distinct()
+            participant_count = participant_ids.count()
+
+            # Checked-in participants for this olympiad
+            checked_in_count = Participant.objects.filter(
+                id__in=participant_ids, is_checked_in=True
+            ).count()
+
+            # Total revenue
+            total_revenue = paid_orders.aggregate(
+                total=Sum('total_amount')
+            )['total'] or 0
+
+            # Total orders (all statuses)
+            all_orders_count = Order.objects.filter(olympiad=olympiad).count()
+            pending_orders = Order.objects.filter(
+                olympiad=olympiad, status='pending'
+            ).count()
+
+            # Subject breakdown for this olympiad
+            subjects_stats = (
+                Subject.objects.filter(olympiad=olympiad)
+                .annotate(
+                    paid_count=Count(
+                        'orders__participant',
+                        filter=Q(orders__status='paid'),
+                        distinct=True,
+                    )
+                )
+                .order_by('-paid_count')
+            )
+
+            # Is upcoming or past
+            is_upcoming = olympiad.event_date > now
+
+            olympiad_stats.append({
+                'olympiad': olympiad,
+                'participant_count': participant_count,
+                'checked_in_count': checked_in_count,
+                'checkin_rate': (
+                    round(checked_in_count / participant_count * 100, 1)
+                    if participant_count > 0 else 0
+                ),
+                'total_revenue': total_revenue,
+                'all_orders_count': all_orders_count,
+                'pending_orders': pending_orders,
+                'subjects_stats': subjects_stats,
+                'is_upcoming': is_upcoming,
+            })
+
+        total_olympiads = olympiads.count()
+        total_paid_orders = Order.objects.filter(status='paid').count()
+
         context = {
             "total_participants": total_participants,
             "checked_in": checked_in,
@@ -107,6 +173,9 @@ class DashboardView(LoginRequiredMixin, View):
             "registrations_by_date": list(registrations_by_date),
             "ru_count": ru_count,
             "uz_count": uz_count,
+            "olympiad_stats": olympiad_stats,
+            "total_olympiads": total_olympiads,
+            "total_paid_orders": total_paid_orders,
         }
 
         return render(request, "admin_panel/dashboard.html", context)

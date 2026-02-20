@@ -24,7 +24,8 @@ from .views import (
 app_name = "public"
 
 urlpatterns = [
-    path("", RegisterView.as_view(), name="register"),
+    path("", ProfileView.as_view(), name="home"),
+    path("register/", RegisterView.as_view(), name="register"),
     path("login/", LoginView.as_view(), name="login"),
     path("profile/", ProfileView.as_view(), name="profile"),
     path("settings/", SettingsView.as_view(), name="settings"),

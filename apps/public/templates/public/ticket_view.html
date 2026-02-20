@@ -467,11 +467,13 @@
                             <div class="ticket-value" style="color: #00bfff;">{{ olympiad.location }}</div>
                         </div>
                         {% endif %}
-                        {% if participant.subject %}
+                        {% if purchased_subjects %}
                         <div class="ticket-info-row">
                             <div class="ticket-label">Fan</div>
                             <div class="ticket-value">
-                                <span class="ticket-badge">{{ participant.subject.name }}</span>
+                                {% for subj in purchased_subjects %}
+                                <span class="ticket-badge" style="margin-right: 4px; margin-bottom: 4px;">{{ subj.name }}</span>
+                                {% endfor %}
                             </div>
                         </div>
                         {% endif %}
