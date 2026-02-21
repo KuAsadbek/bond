@@ -7,7 +7,7 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
-from apps.public.models import Order, Participant, OlympiadSettings, Subject
+from apps.public.models import Order, Participant, OlympiadSettings
 from decimal import Decimal
 
 # Проверяем существующие заказы
@@ -43,10 +43,10 @@ else:
     else:
         print(f"Using existing participant: {participant.fullname}")
     
-    # Получаем цену билета из первого Subject
-    subject = Subject.objects.filter(ticket_price__gt=0).first()
-    if subject:
-        amount = subject.ticket_price
+    # Получаем цену билета из настроек
+    olympiad = OlympiadSettings.get_active()
+    if olympiad and olympiad.ticket_price > 0:
+        amount = olympiad.ticket_price
     else:
         amount = Decimal("10.00")  # 10 сум = 1000 тийинов
     

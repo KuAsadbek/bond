@@ -45,9 +45,14 @@ class DashboardView(LoginRequiredMixin, View):
     login_url = "/panel/login/"
 
     def get(self, request):
-        # Get basic stats
-        total_participants = Participant.objects.count()
-        checked_in = Participant.objects.filter(is_checked_in=True).count()
+        # Filter participants by registration date (12.02.2026 and later)
+        from datetime import datetime, timezone as tz
+        cutoff_date = datetime(2026, 2, 12, 0, 0, 0, tzinfo=tz.utc)
+        recent_participants = Participant.objects.filter(created_at__gte=cutoff_date)
+        
+        # Get basic stats (only recent participants)
+        total_participants = recent_participants.count()
+        checked_in = recent_participants.filter(is_checked_in=True).count()
         not_checked_in = total_participants - checked_in
 
         # Calculate check-in rate
@@ -57,31 +62,33 @@ class DashboardView(LoginRequiredMixin, View):
             else 0
         )
 
-        # Participants by subject (through Order model)
+        # Participants by subject (through Order model) - only recent
         by_subject = (
             Subject.objects.annotate(
-                participant_count=Count("orders__participant", distinct=True)
+                participant_count=Count("orders__participant", distinct=True, filter=Q(orders__participant__created_at__gte=cutoff_date))
             )
             .filter(participant_count__gt=0)
             .order_by("-participant_count")
         )
 
-        # Participants by grade
-        by_grade = (
-            Participant.objects.values("grade")
+        # Participants by grade - only recent
+        by_grade_list = (
+            recent_participants.values("grade")
             .annotate(count=Count("id"))
             .order_by("grade")
         )
+        by_grade = list(by_grade_list)
+        max_grade_count = max([g['count'] for g in by_grade], default=0)
 
-        # Participants by district
+        # Participants by district - only recent
         by_district = (
-            Participant.objects.values("district")
+            recent_participants.values("district")
             .annotate(count=Count("id"))
             .order_by("-count")[:10]
         )
 
-        # Recent registrations (last 10)
-        recent_registrations = Participant.objects.order_by("-created_at")[:10]
+        # Recent registrations (last 10) - only recent
+        recent_registrations = recent_participants.order_by("-created_at")[:10]
 
         # Registrations by date (last 7 days)
         seven_days_ago = timezone.now() - timezone.timedelta(days=7)
@@ -93,39 +100,64 @@ class DashboardView(LoginRequiredMixin, View):
             .order_by("date")
         )
 
-        # Language statistics
-        ru_count = Participant.objects.filter(test_language='ru').count()
-        uz_count = Participant.objects.filter(test_language='uz').count()
+        # Language statistics - only recent
+        ru_count = recent_participants.filter(test_language='ru').count()
+        uz_count = recent_participants.filter(test_language='uz').count()
 
         # Olympiad statistics
         now = timezone.now()
         olympiads = OlympiadSettings.objects.all().order_by('-event_date')
         olympiad_stats = []
         for olympiad in olympiads:
-            # Participants who have paid orders for this olympiad
-            paid_orders = Order.objects.filter(
-                olympiad=olympiad, status='paid'
+            # Determine age group based on olympiad name
+            is_preschool = "bog'cha" in olympiad.event_name.lower() or "maktabgacha" in olympiad.event_name.lower()
+            
+            # Participants with any orders for this olympiad (regardless of status)
+            all_orders = Order.objects.filter(olympiad=olympiad)
+            all_registered_ids = set(
+                all_orders.values_list('participant_id', flat=True).distinct()
             )
-            participant_ids = paid_orders.values_list(
+            
+            # For Maktabgacha: show ALL who registered (any grade)
+            # For regular olympiad: show only specific age group (grades 1-11)
+            if is_preschool and "maktabgacha" in olympiad.event_name.lower():
+                # For Maktabgacha: take all recent participants who have orders for this olympiad
+                all_participants = recent_participants.filter(id__in=all_registered_ids)
+            else:
+                # For regular olympiad: filter by age group
+                if is_preschool:
+                    age_group_filter = Q(grade=0)
+                else:
+                    age_group_filter = Q(grade__in=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+                all_participants = recent_participants.filter(age_group_filter)
+            
+            # Paid participants (Ishtirokchilar = те кто оплатил)
+            paid_orders = all_orders.filter(status='paid')
+            paid_participant_ids = set(paid_orders.values_list(
                 'participant_id', flat=True
-            ).distinct()
-            participant_count = participant_ids.count()
+            ).distinct())
+            
+            # Filter paid participants to only from correct group
+            paid_in_group = all_participants.filter(id__in=paid_participant_ids)
+            
+            # Total participants (including those without orders)
+            total_count = all_participants.count()
+            
+            # Only paid participants for Ishtirokchilar display
+            participant_count = paid_in_group.count()
 
-            # Checked-in participants for this olympiad
-            checked_in_count = Participant.objects.filter(
-                id__in=participant_ids, is_checked_in=True
+            # Checked-in participants (must be paid and checked in)
+            checked_in_count = paid_in_group.filter(
+                is_checked_in=True
             ).count()
 
-            # Total revenue
-            total_revenue = paid_orders.aggregate(
-                total=Sum('total_amount')
-            )['total'] or 0
-
-            # Total orders (all statuses)
-            all_orders_count = Order.objects.filter(olympiad=olympiad).count()
-            pending_orders = Order.objects.filter(
-                olympiad=olympiad, status='pending'
-            ).count()
+            # Total revenue (only from paid orders in this age group)
+            total_revenue = paid_orders.filter(
+                participant__id__in=all_participants.values_list('id', flat=True)
+            ).aggregate(total=Sum('total_amount'))['total'] or 0
+            
+            # Count unpaid participants (Kutmoqda = не оплатили, включая тех без заказов)
+            unpaid_participant_count = total_count - participant_count
 
             # Subject breakdown for this olympiad
             subjects_stats = (
@@ -152,8 +184,7 @@ class DashboardView(LoginRequiredMixin, View):
                     if participant_count > 0 else 0
                 ),
                 'total_revenue': total_revenue,
-                'all_orders_count': all_orders_count,
-                'pending_orders': pending_orders,
+                'unpaid_participant_count': unpaid_participant_count,
                 'subjects_stats': subjects_stats,
                 'is_upcoming': is_upcoming,
             })
@@ -168,6 +199,7 @@ class DashboardView(LoginRequiredMixin, View):
             "checkin_rate": checkin_rate,
             "by_subject": by_subject,
             "by_grade": by_grade,
+            "max_grade_count": max_grade_count,
             "by_district": by_district,
             "recent_registrations": recent_registrations,
             "registrations_by_date": list(registrations_by_date),
