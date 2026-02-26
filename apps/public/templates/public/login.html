@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-ru="Вход | Bond and Data" data-uz="Kirish | Bond and Data">Вход | Bond and Data</title>
+    <meta name="description" content="Вход в систему Bond and Data">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #6366f1;
+            --bg-dark: #0f172a;
+            --text-main: #f8fafc;
+            --glass: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --neon-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        /* Background Elements */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .radial-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Lang Switcher */
+        .lang-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 5px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: var(--bg-dark);
+            box-shadow: var(--neon-shadow);
+        }
+
+        .lang-divider {
+            color: rgba(255, 255, 255, 0.2);
+            margin: 0 5px;
+            font-size: 10px;
+        }
+
+        /* Login Card */
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: cardAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-container img {
+            height: 50px;
+            filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.5));
+        }
+
+        .header-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header-title h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            letter-spacing: 2px;
+            color: var(--primary);
+            margin-bottom: 8px;
+            text-shadow: var(--neon-shadow);
+        }
+
+        .header-title p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+
+        /* Form Controls */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group {
+            display: flex;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .input-group:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .input-prefix {
+            padding: 12px 15px;
+            background: rgba(0, 242, 255, 0.1);
+            color: var(--primary);
+            font-weight: 700;
+            border-right: 1px solid var(--glass-border);
+            font-size: 14px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 12px 15px;
+            color: white;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 242, 255, 0.4);
+            filter: brightness(1.1);
+        }
+
+        /* Error Messages */
+        .form-errors {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #ef4444;
+        }
+
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 5px 0 0 0;
+            color: #ef4444;
+            font-size: 12px;
+        }
+
+        /* Links */
+        .bottom-links {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-align: center;
+        }
+
+        .link-item {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .link-item a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .link-item a:hover {
+            color: white;
+            text-shadow: var(--neon-shadow);
+        }
+
+        .forgot-password {
+            color: var(--secondary) !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="bg-canvas"></canvas>
+    <div class="grid-overlay"></div>
+    <div class="radial-glow"></div>
+
+    <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="uz" onclick="setLanguage('uz')">UZ</button>
+        <span class="lang-divider">|</span>
+        <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">RU</button>
+    </div>
+
+    <div class="login-card">
+        <div class="logo-container">
+            <img src="{% load static %}{% static 'public/img/logo-1.png' %}" alt="Bond and Data Logo">
+        </div>
+
+        <div class="header-title">
+            <h1 data-ru="ВХОД" data-uz="KIRISH">KIRISH</h1>
+            <p data-ru="Войдите в свой аккаунт" data-uz="Akkauntingizga kiring">Akkauntingizga kiring</p>
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="form-errors">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <form method="post" id="login-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label" data-ru="Номер телефона" data-uz="Telefon raqami">Telefon raqami</label>
+                <div class="input-group">
+                    <span class="input-prefix">+998</span>
+                    <input type="text" name="phone_number" id="id_phone_number" class="form-input"
+                        placeholder="XX XXX XX XX" maxlength="12" required>
+                </div>
+                {% if form.phone_number.errors %}{{ form.phone_number.errors }}{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" data-ru="Пароль" data-uz="Parol">Parol</label>
+                <div class="input-group">
+                    <input type="password" name="password" id="id_password" class="form-input" required>
+                </div>
+                {% if form.password.errors %}{{ form.password.errors }}{% endif %}
+            </div>
+
+            <button type="submit" class="btn-submit" data-ru="ВОЙТИ" data-uz="KIRISH">
+                KIRISH
+            </button>
+        </form>
+
+        <div class="bottom-links">
+            <div class="link-item">
+                <a href="{% url 'public:forgot_password' %}" class="forgot-password" data-ru="Забыли пароль?"
+                    data-uz="Parolingizni unutdingizmi?">Parolingizni unutdingizmi?</a>
+            </div>
+            <div class="link-item">
+                <span data-ru="Нет аккаунта?" data-uz="Akkauntingiz yo'qmi?">Akkauntingiz yo'qmi?</span>
+                <a href="{% url 'public:register' %}" data-ru="Зарегистрируйтесь" data-uz="Ro'yxatdan o'ting">Ro'yxatdan
+                    o'ting</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Particle Background Logic
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+                this.life = Math.random() * 0.5 + 0.5;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = `rgba(0, 242, 255, ${this.life * 0.3})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 50; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Language Logic
+        function setLanguage(lang) {
+            localStorage.setItem('lang', lang);
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            document.querySelectorAll('[data-ru]').forEach(el => {
+                const text = el.getAttribute('data-' + lang);
+
+                // Keep icons if they exist
+                const icon = el.querySelector('i');
+                if (icon) {
+                    el.innerHTML = '';
+                    el.appendChild(icon);
+                    el.appendChild(document.createTextNode(' ' + text));
+                } else {
+                    el.textContent = text;
+                }
+            });
+
+            // Update placeholders
+            document.querySelectorAll('input[data-ru-placeholder]').forEach(input => {
+                input.placeholder = input.getAttribute('data-' + lang + '-placeholder');
+            });
+
+            const title = document.querySelector('title');
+            if (title && title.hasAttribute('data-' + lang)) {
+                document.title = title.getAttribute('data-' + lang);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedLang = localStorage.getItem('lang') || 'uz';
+            setLanguage(savedLang);
+        });
+    </script>
+</body>
+
+</html>

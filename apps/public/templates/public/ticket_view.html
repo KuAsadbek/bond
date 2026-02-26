@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-ru="Ваш билет | Bond and Data" data-uz="Sizning chiptangiz | Bond and Data">Ваш билет | Bond and Data
+    </title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 8s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            top: -100px;
+            left: -100px;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            bottom: -50px;
+            right: -50px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-30px) scale(1.05);
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .lang-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: #fff;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #fff 0%, #a8b4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+        }
+
+        /* Ticket Preview Card */
+        .ticket-preview {
+            background: linear-gradient(180deg, #1e3a5f 0%, #0f1f35 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 25px;
+            border: 3px solid #ffd700;
+            position: relative;
+        }
+
+        .ticket-gold-line {
+            height: 5px;
+            background: #ffd700;
+        }
+
+        .ticket-content {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .ticket-left {
+            width: 25%;
+            text-align: center;
+            border-right: 2px dashed rgba(255, 215, 0, 0.4);
+            padding-right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ticket-logo {
+            width: 60px;
+            height: auto;
+            margin-bottom: 8px;
+        }
+
+        .ticket-and {
+            color: #ffd700;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 8px 0;
+        }
+
+        .ticket-year {
+            margin-top: 10px;
+            padding: 5px 12px;
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .ticket-center {
+            flex: 1;
+        }
+
+        .ticket-header-title {
+            text-align: center;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .ticket-title {
+            color: #ffd700;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .ticket-subtitle {
+            color: #00bfff;
+            font-size: 11px;
+        }
+
+        .ticket-info-row {
+            display: flex;
+            padding: 5px 0;
+        }
+
+        .ticket-label {
+            width: 90px;
+            color: #7a9fc4;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .ticket-value {
+            flex: 1;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .ticket-name {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .ticket-badge {
+            display: inline-block;
+            background: #00bfff;
+            color: #fff;
+            padding: 3px 10px;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 3px;
+        }
+
+        .ticket-right {
+            width: 25%;
+            text-align: center;
+            border-left: 2px dashed rgba(255, 215, 0, 0.4);
+            padding-left: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ticket-qr-frame {
+            padding: 8px;
+            border: 2px solid #ffd700;
+            background: #fff;
+            border-radius: 4px;
+        }
+
+        .ticket-qr {
+            width: 80px;
+            height: 80px;
+        }
+
+        .ticket-scan {
+            margin-top: 10px;
+            color: #00bfff;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .ticket-scan-sub {
+            color: #7a9fc4;
+            font-size: 8px;
+            margin-top: 2px;
+        }
+
+        /* Action Buttons */
+        .btn-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        @media (max-width: 600px) {
+            .ticket-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .ticket-left,
+            .ticket-right {
+                width: 100%;
+                border: none;
+                padding: 10px 0;
+                border-bottom: 2px dashed rgba(255, 215, 0, 0.4);
+            }
+
+            .ticket-right {
+                border-bottom: none;
+                border-top: 2px dashed rgba(255, 215, 0, 0.4);
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <div class="container">
+        <div class="lang-switcher">
+            <button class="lang-btn active" data-lang="ru" onclick="setLanguage('ru')">Русский</button>
+            <button class="lang-btn" data-lang="uz" onclick="setLanguage('uz')">O'zbek</button>
+        </div>
+
+        <a href="{% url 'public:profile' %}" class="back-link" data-ru="← Назад в профиль" data-uz="← Profilga qaytish">
+            ← Назад в профиль
+        </a>
+
+        <div class="card">
+            <div class="header">
+                <h1 data-ru="Ваш билет" data-uz="Sizning chiptangiz">Ваш билет</h1>
+                <p data-ru="Покажите QR-код на входе или скачайте PDF"
+                    data-uz="Kirish joyida QR-kodni ko'rsating yoki PDF yuklab oling">
+                    Покажите QR-код на входе или скачайте PDF
+                </p>
+            </div>
+
+            <!-- Ticket Preview Card -->
+            <div class="ticket-preview">
+                <div class="ticket-gold-line"></div>
+                <div class="ticket-content">
+                    <!-- Left - Logos -->
+                    <div class="ticket-left">
+                        {% load static %}
+                        <img src="{% static 'public/img/logo-1.png' %}" class="ticket-logo" alt="Bond">
+                    </div>
+
+                    <!-- Center - Info -->
+                    <div class="ticket-center">
+                        <div class="ticket-header-title">
+                            <div class="ticket-title">ISHTIROKCHI BILETI</div>
+                            <div class="ticket-subtitle">Bond - Viloyat bosqichi</div>
+                        </div>
+
+                        <div class="ticket-info-row">
+                            <div class="ticket-label">F.I.O</div>
+                            <div class="ticket-value ticket-name">{{ participant.fullname }}</div>
+                        </div>
+                        <div class="ticket-info-row">
+                            <div class="ticket-label">Maktab</div>
+                            <div class="ticket-value">{{ participant.school }}</div>
+                        </div>
+                        <div class="ticket-info-row">
+                            <div class="ticket-label">Sinf</div>
+                            <div class="ticket-value">{{ participant.grade }}-sinf</div>
+                        </div>
+                        <div class="ticket-info-row">
+                            <div class="ticket-label">Tuman</div>
+                            <div class="ticket-value">{{ participant.district }}</div>
+                        </div>
+                        <div class="ticket-info-row">
+                            <div class="ticket-label">Telefon</div>
+                            <div class="ticket-value">{{ participant.phone_number }}</div>
+                        </div>
+                        {% if olympiad %}
+                        <div class="ticket-info-row">
+                            <div class="ticket-label">Sana</div>
+                            <div class="ticket-value" style="color: #ffd700;">{{ olympiad.event_date|date:"d.m.Y" }}
+                            </div>
+                        </div>
+                        <div class="ticket-info-row">
+                            <div class="ticket-label">Vaqt</div>
+                            <div class="ticket-value" style="color: #ffd700;">{{ olympiad.event_date|time:"H:i" }}</div>
+                        </div>
+                        <div class="ticket-info-row">
+                            <div class="ticket-label">Manzil</div>
+                            <div class="ticket-value" style="color: #00bfff;">{{ olympiad.location }}</div>
+                        </div>
+                        {% endif %}
+                        {% if purchased_subjects %}
+                        <div class="ticket-info-row">
+                            <div class="ticket-label">Fan</div>
+                            <div class="ticket-value">
+                                {% for subj in purchased_subjects %}
+                                <span class="ticket-badge" style="margin-right: 4px; margin-bottom: 4px;">{{ subj.name }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Right - QR -->
+                    <div class="ticket-right">
+                        <div class="ticket-qr-frame">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data={{ participant.id }}"
+                                class="ticket-qr" alt="QR">
+                        </div>
+                        <div class="ticket-scan">SKANERLANG</div>
+                        <div class="ticket-scan-sub">Kirish uchun</div>
+                    </div>
+                </div>
+                <div class="ticket-gold-line"></div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-container">
+                <a href="{% url 'public:view_ticket_pdf' uuid=participant.id %}" target="_blank" class="btn-primary"
+                    style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);"
+                    data-ru="🔍 Открыть" data-uz="🔍 Ochish">
+                    🔍 Открыть
+                </a>
+                <a href="{% url 'public:download_ticket' uuid=participant.id %}" class="btn-primary"
+                    data-ru="📥 Скачать PDF" data-uz="📥 PDF yuklab olish">
+                    📥 Скачать PDF
+                </a>
+            </div>
+
+            <a href="{% url 'public:profile' %}" class="btn-secondary" data-ru="← Вернуться в профиль"
+                data-uz="← Profilga qaytish">
+                ← Вернуться в профиль
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function setLanguage(lang) {
+            localStorage.setItem('lang', lang);
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            document.querySelectorAll('[data-ru]').forEach(el => {
+                el.textContent = el.getAttribute('data-' + lang);
+            });
+            const title = document.querySelector('title');
+            if (title && title.hasAttribute('data-' + lang)) {
+                document.title = title.getAttribute('data-' + lang);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedLang = localStorage.getItem('lang') || 'ru';
+            setLanguage(savedLang);
+        });
+    </script>
+</body>
+
+</html>

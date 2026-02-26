@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-ru="Рейтинг | Bond and Data" data-uz="Reyting | Bond and Data">Рейтинг | Bond and Data</title>
+    <meta name="description" content="Рейтинг участников Bond and Data">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 8s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        .orb-1 { width: 400px; height: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); top: -100px; left: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); bottom: -50px; right: -50px; animation-delay: 2s; }
+        .orb-3 { width: 200px; height: 200px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); top: 50%; right: 20%; animation-delay: 4s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.05); }
+        }
+
+        .container { width: 100%; max-width: 800px; margin: 0 auto; position: relative; z-index: 1; }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: slideUp 0.6s ease-out;
+            margin-bottom: 20px;
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .lang-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+        .lang-btn {
+            padding: 8px 16px; font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif;
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px;
+            cursor: pointer; transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.7);
+        }
+        .lang-btn:hover { background: rgba(255, 255, 255, 0.15); color: #fff; }
+        .lang-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; border-color: transparent; }
+
+        .logo-container { text-align: center; margin-bottom: 20px; }
+        .logo-container img { height: 50px; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)); }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 {
+            color: #fff; font-size: 28px; font-weight: 700; margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 0%, #a8b4ff 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .header p { color: rgba(255, 255, 255, 0.6); font-size: 15px; }
+
+        .user-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center; }
+        .stat-item {
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .stat-value {
+            font-size: 36px; font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .stat-value.gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .stat-label { color: rgba(255, 255, 255, 0.6); font-size: 13px; margin-top: 8px; }
+
+        .leaderboard-title {
+            color: #fff; font-size: 20px; font-weight: 600; margin-bottom: 20px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .leaderboard-title::before { content: '🏆'; }
+
+        .leaderboard { list-style: none; }
+        .leaderboard-item {
+            display: flex; align-items: center;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+        .leaderboard-item:hover { background: rgba(255, 255, 255, 0.08); transform: translateX(4px); }
+        .leaderboard-item.current-user { background: rgba(102, 126, 234, 0.2); border: 1px solid rgba(102, 126, 234, 0.4); }
+
+        .rank {
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 16px; border-radius: 10px; margin-right: 16px;
+            background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.8);
+        }
+        .rank.gold { background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%); color: #1a1a2e; }
+        .rank.silver { background: linear-gradient(135deg, #c0c0c0 0%, #a8a8a8 100%); color: #1a1a2e; }
+        .rank.bronze { background: linear-gradient(135deg, #cd7f32 0%, #b87333 100%); color: #1a1a2e; }
+
+        .participant-info { flex: 1; }
+        .participant-name { color: #fff; font-weight: 600; font-size: 15px; }
+        .participant-details { color: rgba(255, 255, 255, 0.5); font-size: 12px; margin-top: 2px; }
+        .participant-score { font-weight: 700; font-size: 18px; color: #667eea; }
+
+        .nav-buttons { display: flex; gap: 12px; margin-top: 20px; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            flex: 1; padding: 14px 20px;
+            font-size: 14px; font-weight: 500; font-family: 'Inter', sans-serif;
+            border-radius: 12px; cursor: pointer;
+            transition: all 0.3s ease; text-decoration: none;
+        }
+        .btn-primary { color: #fff; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+        .btn-secondary { color: rgba(255, 255, 255, 0.7); background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); color: #fff; }
+
+        @media (max-width: 600px) {
+            .user-stats { grid-template-columns: 1fr; }
+            .card { padding: 25px; }
+            .stat-value { font-size: 28px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+
+    <div class="container">
+        <div class="lang-switcher">
+            <button class="lang-btn active" data-lang="ru" onclick="setLanguage('ru')">Русский</button>
+            <button class="lang-btn" data-lang="uz" onclick="setLanguage('uz')">O'zbek</button>
+        </div>
+
+        <div class="card" style="margin-top: 50px;">
+            <div class="logo-container">
+                {% load static %}
+                <img src="{% static 'public/img/logo-1.png' %}" alt="Bond and Data Logo">
+            </div>
+
+            <div class="header">
+                <h1 data-ru="Рейтинг участников" data-uz="Ishtirokchilar reytingi">Рейтинг участников</h1>
+                <p>{{ participant.fullname }}</p>
+            </div>
+
+            <div class="user-stats">
+                <div class="stat-item">
+                    <div class="stat-value gold">#{{ user_rank }}</div>
+                    <div class="stat-label" data-ru="Ваше место" data-uz="Sizning o'rningiz">Ваше место</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ participant.score }}</div>
+                    <div class="stat-label" data-ru="Ваши баллы" data-uz="Sizning ballaringiz">Ваши баллы</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ total_participants }}</div>
+                    <div class="stat-label" data-ru="Всего участников" data-uz="Jami ishtirokchilar">Всего участников</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="leaderboard-title" data-ru="Топ участников" data-uz="Top ishtirokchilar">Топ участников</h2>
+            
+            <ul class="leaderboard">
+                {% for item in leaderboard %}
+                <li class="leaderboard-item {% if item.id == participant.id %}current-user{% endif %}">
+                    <div class="rank {% if forloop.counter == 1 %}gold{% elif forloop.counter == 2 %}silver{% elif forloop.counter == 3 %}bronze{% endif %}">
+                        {{ forloop.counter }}
+                    </div>
+                    <div class="participant-info">
+                        <div class="participant-name">{{ item.fullname }}</div>
+                        <div class="participant-details">{{ item.school }} • {{ item.grade }} <span data-ru="класс" data-uz="sinf">класс</span></div>
+                    </div>
+                    <div class="participant-score">{{ item.score }}</div>
+                </li>
+                {% empty %}
+                <li class="leaderboard-item">
+                    <div class="participant-info">
+                        <div class="participant-name" style="color: rgba(255,255,255,0.5);" data-ru="Пока нет данных о рейтинге" data-uz="Hozircha reyting ma'lumotlari yo'q">Пока нет данных о рейтинге</div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+
+            <div class="nav-buttons">
+                <a href="{% url 'public:profile' %}" class="btn btn-primary" data-ru="← Профиль" data-uz="← Profil">← Профиль</a>
+                <a href="{% url 'public:logout' %}" class="btn btn-secondary" data-ru="Выйти" data-uz="Chiqish">Выйти</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setLanguage(lang) {
+            localStorage.setItem('lang', lang);
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            document.querySelectorAll('[data-ru]').forEach(el => {
+                el.textContent = el.getAttribute('data-' + lang);
+            });
+            const title = document.querySelector('title');
+            if (title && title.hasAttribute('data-' + lang)) {
+                document.title = title.getAttribute('data-' + lang);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedLang = localStorage.getItem('lang') || 'ru';
+            setLanguage(savedLang);
+        });
+    </script>
+</body>
+
+</html>

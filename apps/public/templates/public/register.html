@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-ru="Регистрация | Bond and Data" data-uz="Ro'yxatdan o'tish | Bond and Data">Регистрация | Bond and Data
+    </title>
+    <meta name="description" content="Регистрация на мероприятие Bond and Data">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #6366f1;
+            --bg-dark: #0f172a;
+            --text-main: #f8fafc;
+            --glass: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --neon-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+            --success: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        /* Background Elements */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .radial-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Lang Switcher */
+        .lang-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 5px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn.active {
+            background: var(--primary);
+            color: var(--bg-dark);
+            box-shadow: var(--neon-shadow);
+        }
+
+        .lang-divider {
+            color: rgba(255, 255, 255, 0.2);
+            margin: 0 5px;
+            font-size: 10px;
+        }
+
+        /* Registration Card */
+        .container {
+            width: 100%;
+            max-width: 550px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .register-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: cardAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Countdown Section */
+        .countdown-section {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .event-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--primary);
+            font-size: 16px;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            text-shadow: var(--neon-shadow);
+        }
+
+        .event-info {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .countdown-boxes {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .count-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 10px;
+            min-width: 60px;
+        }
+
+        .count-num {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 22px;
+            color: white;
+            font-weight: 700;
+        }
+
+        .count-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 1px;
+            margin-top: 4px;
+        }
+
+        /* Step Indicator */
+        .steps-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.3);
+            transition: all 0.4s ease;
+        }
+
+        .step-item.active .step-circle {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border-color: var(--primary);
+            box-shadow: var(--neon-shadow);
+        }
+
+        .step-item.completed .step-circle {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .step-line {
+            width: 30px;
+            height: 2px;
+            background: var(--glass-border);
+            border-radius: 1px;
+            transition: all 0.4s ease;
+        }
+
+        .step-line.completed {
+            background: var(--success);
+        }
+
+        /* Form Controls */
+        .header-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header-title h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            letter-spacing: 2px;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .header-title p {
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .input-group:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .input-prefix {
+            padding: 12px 15px;
+            background: rgba(0, 242, 255, 0.1);
+            color: var(--primary);
+            font-weight: 700;
+            border-right: 1px solid var(--glass-border);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 12px 15px;
+            color: white;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        select.form-input {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(255,255,255,0.3)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 16px;
+        }
+
+        .form-input option {
+            background: var(--bg-dark);
+            color: white;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 242, 255, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        /* Step Content */
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Error/Messages */
+        .message {
+            font-size: 12px;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .error-message {
+            color: #ef4444;
+        }
+
+        .success-message {
+            color: var(--success);
+        }
+
+        .form-errors-block {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #ef4444;
+        }
+
+        /* Responsive */
+        @media (max-width: 500px) {
+            .register-card {
+                padding: 30px 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="bg-canvas"></canvas>
+    <div class="grid-overlay"></div>
+    <div class="radial-glow"></div>
+
+    <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="uz" onclick="setLanguage('uz')">UZ</button>
+        <span class="lang-divider">|</span>
+        <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">RU</button>
+    </div>
+
+    <div class="container">
+        {% if olympiad %}
+        <div class="countdown-section">
+            <div class="event-title">{{ olympiad.event_name }}</div>
+            <div class="event-info">
+                <div>📅 {{ olympiad.event_date|date:"d.m.Y" }} | ⏰ {{ olympiad.event_date|time:"H:i" }}</div>
+                <div style="margin-top: 5px;">📍 {{ olympiad.location }}</div>
+            </div>
+            <div class="countdown-boxes" id="countdown">
+                <div class="count-box">
+                    <div class="count-num" id="days">00</div>
+                    <div class="count-label" data-ru="дней" data-uz="kun">kun</div>
+                </div>
+                <div class="count-box">
+                    <div class="count-num" id="hours">00</div>
+                    <div class="count-label" data-ru="часов" data-uz="soat">soat</div>
+                </div>
+                <div class="count-box">
+                    <div class="count-num" id="minutes">00</div>
+                    <div class="count-label" data-ru="минут" data-uz="daqiqa">daqiqa</div>
+                </div>
+                <div class="count-box">
+                    <div class="count-num" id="seconds">00</div>
+                    <div class="count-label" data-ru="секунд" data-uz="soniya">soniya</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="register-card">
+            <div style="text-align: center; margin-bottom: 25px;">
+                <img src="{% load static %}{% static 'public/img/logo-1.png' %}" alt="Logo"
+                    style="height: 40px; filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.4));">
+            </div>
+
+            <div class="header-title">
+                <h1 data-ru="РЕГИСТРАЦИЯ" data-uz="RO'YXATDAN O'TISH">RO'YXATDAN O'TISH</h1>
+                <p id="stepTitle" data-ru="Шаг 1: Подтверждение телефона" data-uz="1-qadam: Telefonni tasdiqlash">
+                    1-qadam: Telefonni tasdiqlash</p>
+            </div>
+
+            <div class="steps-indicator">
+                <div class="step-item active" id="step_indicator_1">
+                    <div class="step-circle">1</div>
+                </div>
+                <div class="step-line" id="line_1"></div>
+                <div class="step-item" id="step_indicator_2">
+                    <div class="step-circle">2</div>
+                </div>
+                <div class="step-line" id="line_2"></div>
+                <div class="step-item" id="step_indicator_3">
+                    <div class="step-circle">3</div>
+                </div>
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="form-errors-block">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <form method="post" id="registration-form">
+                {% csrf_token %}
+
+                <!-- STEP 1 -->
+                <div class="step-content active" id="step1">
+                    <div class="form-group">
+                        <label class="form-label" data-ru="Номер телефона" data-uz="Telefon raqami">Telefon
+                            raqami</label>
+                        <div class="input-group">
+                            <span class="input-prefix">+998</span>
+                            <input type="text" name="phone_number" id="id_phone_number" class="form-input"
+                                placeholder="XX XXX XX XX" maxlength="12">
+                        </div>
+                        <div id="phone-message" class="message"></div>
+                    </div>
+
+                    <button type="button" class="btn" id="sendCodeBtn" onclick="sendVerificationCode()"
+                        data-ru="📱 Отправить код" data-uz="📱 Kod yuborish">
+                        📱 Kod yuborish
+                    </button>
+
+                    <div class="form-group" id="codeInputGroup" style="display: none; margin-top: 20px;">
+                        <label class="form-label" data-ru="Код из SMS" data-uz="SMS kodi">SMS kodi</label>
+                        <div class="input-group">
+                            <input type="text" id="id_verification_code" class="form-input" placeholder="000000"
+                                maxlength="6">
+                        </div>
+                        <div id="code-message" class="message"></div>
+                        <div id="timer" style="color: rgba(255,255,255,0.4); font-size: 11px; margin-top: 6px;"></div>
+                    </div>
+
+                    <button type="button" class="btn" id="verifyCodeBtn" style="display: none; margin-top: 10px;"
+                        onclick="verifyCode()" data-ru="✓ Подтвердить код" data-uz="✓ Kodni tasdiqlash">
+                        ✓ Kodni tasdiqlash
+                    </button>
+                </div>
+
+                <!-- STEP 2 -->
+                <div class="step-content" id="step2">
+                    <div class="form-group">
+                        <label class="form-label" data-ru="Пароль" data-uz="Parol">Parol</label>
+                        <div class="input-group">
+                            <input type="password" name="password" id="id_password" class="form-input" required>
+                        </div>
+                        {% if form.password.errors %}<div class="error-message">{{ form.password.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" data-ru="Подтвердите пароль" data-uz="Parolni tasdiqlang">Parolni
+                            tasdiqlang</label>
+                        <div class="input-group">
+                            <input type="password" name="password_confirm" id="id_password_confirm" class="form-input"
+                                required>
+                        </div>
+                        {% if form.password_confirm.errors %}<div class="error-message">{{ form.password_confirm.errors }}</div>{% endif %}
+                    </div>
+
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-secondary" onclick="goToStep(1)" data-ru="← Назад"
+                            data-uz="← Orqaga">← Orqaga</button>
+                        <button type="button" class="btn" onclick="goToStep(3)" data-ru="Далее →"
+                            data-uz="Keyingi →">Keyingi →</button>
+                    </div>
+                </div>
+
+                <!-- STEP 3 -->
+                <div class="step-content" id="step3">
+                    <div class="form-group">
+                        <label class="form-label" data-ru="ФИО участника" data-uz="Ishtirokchi F.I.O">Ishtirokchi
+                            F.I.O</label>
+                        <div class="input-group">
+                            <input type="text" name="fullname" id="id_fullname" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" data-ru="Регион" data-uz="Viloyat">Viloyat</label>
+                            <div class="input-group">
+                                <select name="region" id="id_region" class="form-input" required>
+                                    <option value="" data-ru="Выберите регион" data-uz="Viloyatni tanlang">Viloyatni
+                                        tanlang</option>
+                                    {% for region in regions %}
+                                    <option value="{{ region.name_uz }}" data-id="{{ region.id }}"
+                                        data-name-uz="{{ region.name_uz }}" data-name-ru="{{ region.name_ru }}">
+                                        {{ region.name_uz }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ru="Район" data-uz="Tuman">Tuman</label>
+                            <div class="input-group">
+                                <select name="district" id="id_district" class="form-input" required disabled>
+                                    <option value="" data-ru="Выберите регион" data-uz="Viloyatni tanlang">Viloyatni
+                                        tanlang</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" data-ru="Школа" data-uz="Maktab">Maktab</label>
+                        <div class="input-group">
+                            <input type="text" name="school" id="id_school" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" data-ru="Класс" data-uz="Sinf">Sinf</label>
+                            <div class="input-group">
+                                <select name="grade" id="id_grade" class="form-input" required>
+                                    <option value="" data-ru="Выберите класс" data-uz="Sinfni tanlang">Sinfni tanlang
+                                    </option>
+                                    <option value="0" data-ru="Детский сад" data-uz="Bog'cha">Bog'cha</option>
+                                    <option value="1" data-ru="1 класс" data-uz="1-sinf">1-sinf</option>
+                                    <option value="2" data-ru="2 класс" data-uz="2-sinf">2-sinf</option>
+                                    <option value="3" data-ru="3 класс" data-uz="3-sinf">3-sinf</option>
+                                    <option value="4" data-ru="4 класс" data-uz="4-sinf">4-sinf</option>
+                                    <option value="5" data-ru="5 класс" data-uz="5-sinf">5-sinf</option>
+                                    <option value="6" data-ru="6 класс" data-uz="6-sinf">6-sinf</option>
+                                    <option value="7" data-ru="7 класс" data-uz="7-sinf">7-sinf</option>
+                                    <option value="8" data-ru="8 класс" data-uz="8-sinf">8-sinf</option>
+                                    <option value="9" data-ru="9 класс" data-uz="9-sinf">9-sinf</option>
+                                    <option value="10" data-ru="10 класс" data-uz="10-sinf">10-sinf</option>
+                                    <option value="11" data-ru="11 класс" data-uz="11-sinf">11-sinf</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" data-ru="Предмет" data-uz="Fan">Fan</label>
+                            <div class="input-group">
+                                <input type="text" name="subject" id="id_subject" class="form-input" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" data-ru="ФИО учителя" data-uz="O'qituvchi F.I.O">O'qituvchi
+                            F.I.O</label>
+                        <div class="input-group">
+                            <input type="text" name="teacher_fullname" id="id_teacher_fullname" class="form-input"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" data-ru="Язык теста" data-uz="Test tili">Test tili</label>
+                        <div class="input-group">
+                            <select name="test_language" id="id_test_language" class="form-input" required>
+                                <option value="ru" data-ru="Русский" data-uz="Ruscha">Ruscha</option>
+                                <option value="uz" data-ru="O'zbek" data-uz="O'zbek">O'zbek</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-secondary" onclick="goToStep(2)" data-ru="← Назад"
+                            data-uz="← Orqaga">← Orqaga</button>
+                        <button type="submit" class="btn" data-ru="ЗАВЕРШИТЬ" data-uz="TUGATISH">TUGATISH</button>
+                    </div>
+                </div>
+            </form>
+
+            <div
+                style="text-align: center; margin-top: 30px; border-top: 1px solid var(--glass-border); padding-top: 20px;">
+                <span style="color: rgba(255,255,255,0.4); font-size: 13px;" data-ru="Уже есть аккаунт?"
+                    data-uz="Akkauntingiz bormi?">Akkauntingiz bormi?</span>
+                <a href="{% url 'public:login' %}"
+                    style="color: var(--primary); text-decoration: none; font-weight: 700; font-size: 13px; margin-left: 5px;"
+                    data-ru="ВОЙТИ" data-uz="KIRISH">KIRISH</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Particle Background Logic
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+                this.life = Math.random() * 0.5 + 0.5;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+            }
+            draw() {
+                ctx.fillStyle = `rgba(0, 242, 255, ${this.life * 0.3})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 50; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Registration Logic
+        let currentStep = 1;
+        let phoneVerified = false;
+        let timerInterval = null;
+
+        const stepTitles = {
+            1: { ru: "Шаг 1: Подтверждение телефона", uz: "1-qadam: Telefonni tasdiqlash" },
+            2: { ru: "Шаг 2: Пароль", uz: "2-qadam: Parol" },
+            3: { ru: "Шаг 3: Личные данные", uz: "3-qadam: Shaxsiy ma'lumotlar" }
+        };
+
+        function setLanguage(lang) {
+            localStorage.setItem('lang', lang);
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            document.querySelectorAll('[data-ru]').forEach(el => {
+                const text = el.getAttribute('data-' + lang);
+                if (el.tagName === 'INPUT' && el.hasAttribute('data-placeholder-' + lang)) {
+                    el.placeholder = el.getAttribute('data-placeholder-' + lang);
+                } else {
+                    el.textContent = text;
+                }
+            });
+            updateStepTitle();
+        }
+
+        function updateStepTitle() {
+            const lang = localStorage.getItem('lang') || 'ru';
+            const titleEl = document.getElementById('stepTitle');
+            if (titleEl) titleEl.textContent = stepTitles[currentStep][lang];
+        }
+
+        function goToStep(step) {
+            if (step === 2 && !phoneVerified) {
+                const lang = localStorage.getItem('lang') || 'uz';
+                const phoneMsg = document.getElementById('phone-message');
+                phoneMsg.className = 'message error-message';
+                phoneMsg.textContent = lang === 'uz' ? "Avval telefonni tasdiqlang" : "Сначала подтвердите телефон";
+                return;
+            }
+
+            if (step === 3 && currentStep === 2) {
+                const pass = document.getElementById('id_password').value;
+                const conf = document.getElementById('id_password_confirm').value;
+                if (!pass || !conf) {
+                    alert(localStorage.getItem('lang') === 'uz' ? "Parollarni kiriting" : "Введите пароли");
+                    return;
+                }
+                if (pass !== conf) {
+                    alert(localStorage.getItem('lang') === 'uz' ? "Parollar mos kelmadi" : "Пароли не совпадают");
+                    return;
+                }
+            }
+
+            currentStep = step;
+            document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+
+            // Update markers
+            for (let i = 1; i <= 3; i++) {
+                const item = document.getElementById('step_indicator_' + i);
+                const circle = item.querySelector('.step-circle');
+                item.classList.remove('active', 'completed');
+                if (i < step) {
+                    item.classList.add('completed');
+                    circle.innerHTML = '<i class="fas fa-check"></i>';
+                } else if (i === step) {
+                    item.classList.add('active');
+                    circle.textContent = i;
+                } else {
+                    circle.textContent = i;
+                }
+            }
+
+            if (document.getElementById('line_1')) document.getElementById('line_1').classList.toggle('completed', step > 1);
+            if (document.getElementById('line_2')) document.getElementById('line_2').classList.toggle('completed', step > 2);
+
+            updateStepTitle();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function sendVerificationCode() {
+            const phoneInput = document.getElementById('id_phone_number');
+            const sendBtn = document.getElementById('sendCodeBtn');
+            const phoneMsg = document.getElementById('phone-message');
+            const lang = localStorage.getItem('lang') || 'uz';
+
+            const phone = phoneInput.value.replace(/\D/g, '');
+            if (phone.length !== 9) {
+                phoneMsg.className = 'message error-message';
+                phoneMsg.textContent = lang === 'uz' ? "9 ta raqam kiriting" : "Введите 9 цифр";
+                return;
+            }
+
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                const response = await fetch('{% url "public:send_verification_code" %}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: JSON.stringify({ phone_number: phone })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    phoneMsg.className = 'message success-message';
+                    phoneMsg.textContent = lang === 'uz' ? "Kod yuborildi!" : "Код отправлен!";
+                    document.getElementById('codeInputGroup').style.display = 'block';
+                    document.getElementById('verifyCodeBtn').style.display = 'block';
+                    phoneInput.readOnly = true;
+                    startTimer(60);
+                } else {
+                    phoneMsg.className = 'message error-message';
+                    phoneMsg.textContent = data.message;
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = lang === 'uz' ? '📱 Kod yuborish' : '📱 Отправить код';
+                }
+            } catch (e) {
+                phoneMsg.className = 'message error-message';
+                phoneMsg.textContent = "Error";
+                sendBtn.disabled = false;
+            }
+        }
+
+        async function verifyCode() {
+            const phoneInput = document.getElementById('id_phone_number');
+            const codeInput = document.getElementById('id_verification_code');
+            const verifyBtn = document.getElementById('verifyCodeBtn');
+            const codeMsg = document.getElementById('code-message');
+            const lang = localStorage.getItem('lang') || 'uz';
+
+            const phone = phoneInput.value.replace(/\D/g, '');
+            const code = codeInput.value.replace(/\D/g, '');
+
+            verifyBtn.disabled = true;
+            try {
+                const response = await fetch('{% url "public:verify_phone_code" %}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: JSON.stringify({ phone_number: phone, code: code })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    phoneVerified = true;
+                    codeMsg.className = 'message success-message';
+                    codeMsg.textContent = "✓";
+                    if (timerInterval) clearInterval(timerInterval);
+                    setTimeout(() => goToStep(2), 500);
+                } else {
+                    codeMsg.className = 'message error-message';
+                    codeMsg.textContent = data.message;
+                    verifyBtn.disabled = false;
+                }
+            } catch (e) {
+                verifyBtn.disabled = false;
+            }
+        }
+
+        function startTimer(seconds) {
+            const timerEl = document.getElementById('timer');
+            const sendBtn = document.getElementById('sendCodeBtn');
+            const lang = localStorage.getItem('lang') || 'uz';
+            let remaining = seconds;
+            timerEl.textContent = (lang === 'uz' ? "Qayta: " : "Повтор: ") + remaining + "s";
+
+            timerInterval = setInterval(() => {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(timerInterval);
+                    timerEl.textContent = '';
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = lang === 'uz' ? '📱 Qayta yuborish' : '📱 Отправить снова';
+                } else {
+                    timerEl.textContent = (lang === 'uz' ? "Qayta: " : "Повтор: ") + remaining + "s";
+                }
+            }, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setLanguage(localStorage.getItem('lang') || 'uz');
+
+            const phoneInput = document.getElementById('id_phone_number');
+            if (phoneInput) {
+                phoneInput.addEventListener('input', (e) => {
+                    let v = e.target.value.replace(/\D/g, '').slice(0, 9);
+                    let f = '';
+                    if (v.length > 0) f = v.slice(0, 2);
+                    if (v.length > 2) f += ' ' + v.slice(2, 5);
+                    if (v.length > 5) f += ' ' + v.slice(5, 7);
+                    if (v.length > 7) f += ' ' + v.slice(7, 9);
+                    e.target.value = f;
+                });
+            }
+
+            const regSel = document.getElementById('id_region');
+            const disSel = document.getElementById('id_district');
+            if (regSel && disSel) {
+                regSel.addEventListener('change', async function () {
+                    const rid = this.options[this.selectedIndex].dataset.id;
+                    if (!rid) { disSel.disabled = true; return; }
+                    const res = await fetch('/api/districts/' + rid + '/');
+                    const data = await res.json();
+                    const lang = localStorage.getItem('lang') || 'uz';
+                    disSel.innerHTML = `<option value="">${lang === 'uz' ? 'Tumanni tanlang' : 'Выберите район'}</option>`;
+                    data.districts.forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d.name_uz;
+                        opt.textContent = lang === 'uz' ? d.name_uz : (d.name_ru || d.name_uz);
+                        disSel.appendChild(opt);
+                    });
+                    disSel.disabled = false;
+                });
+            }
+
+            {% if olympiad %}
+            const edate = new Date("{{ olympiad.event_date|date:'c' }}");
+            setInterval(() => {
+                const diff = edate - new Date();
+                if (diff <= 0) return;
+                document.getElementById('days').textContent = String(Math.floor(diff / 864e5)).padStart(2, '0');
+                document.getElementById('hours').textContent = String(Math.floor((diff % 864e5) / 36e5)).padStart(2, '0');
+                document.getElementById('minutes').textContent = String(Math.floor((diff % 36e5) / 6e4)).padStart(2, '0');
+                document.getElementById('seconds').textContent = String(Math.floor((diff % 6e4) / 1000)).padStart(2, '0');
+            }, 1000);
+            {% endif %}
+        });
+    </script>
+</body>
+
+</html>

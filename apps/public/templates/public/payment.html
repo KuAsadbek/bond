@@ -1,0 +1,635 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-ru="Оплата билета | BOND" data-uz="Chipta to'lovi | BOND">Chipta to'lovi | BOND</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --secondary: #6366f1;
+            --accent: #f59e0b;
+            --bg-dark: #020617;
+            --glass: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Futuristic Background - Same as profile.html */
+        .bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: #020617 url("{% static 'public/img/img-bg.png' %}") center/cover no-repeat;
+        }
+
+        .bg-canvas::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(2, 6, 23, 0.4) 0%, #020617 100%);
+        }
+
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px);
+            background-size: 60px 60px;
+            opacity: 0.3;
+        }
+
+        /* Navigation - Same as profile.html */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(2, 6, 23, 0.3);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            cursor: pointer;
+        }
+
+        .logo-text {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--primary);
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+
+        .logo-badge {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 2px;
+            text-transform: uppercase;
+            font-weight: 700;
+            width: fit-content;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .lang-switcher {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .lang-btn {
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .lang-btn.active {
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+        }
+
+        .lang-divider {
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 10px;
+        }
+
+        /* Payment Content */
+        .payment-container {
+            padding-top: 150px;
+            padding-bottom: 100px;
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .payment-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .payment-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .payment-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .payment-title span {
+            color: var(--primary);
+        }
+
+        .payment-desc {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 16px;
+        }
+
+        /* Course Cards */
+        .course-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .course-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .course-card:hover {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .course-card.selected {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--secondary);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+        }
+
+        .course-info h4 {
+            font-size: 18px;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .course-meta {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .course-price {
+            text-align: right;
+        }
+
+        .price-val {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+            display: block;
+        }
+
+        .price-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .selection-check {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            margin-left: 20px;
+        }
+
+        .course-card.selected .selection-check {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .selection-check i {
+            font-size: 12px;
+            color: #fff;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.3s;
+        }
+
+        .course-card.selected .selection-check i {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Total Section */
+        .total-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: none;
+            border: 1px solid var(--glass-border);
+        }
+
+        .total-box.visible {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .total-amount {
+            font-size: 28px;
+            font-weight: 900;
+            color: #fff;
+        }
+
+        /* Payment Buttons */
+        .payment-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .pay-btn {
+            padding: 18px;
+            border-radius: 16px;
+            border: none;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .pay-btn img {
+            height: 24px;
+        }
+
+        .btn-payme {
+            background: #fff;
+            color: #00CCCC;
+        }
+
+        .btn-click {
+            background: #005FF9;
+            color: #fff;
+        }
+
+        .pay-btn:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .security-msg {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 15px 25px;
+            }
+
+            .payment-container {
+                padding-top: 120px;
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+
+            .payment-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-canvas">
+        <div class="grid-overlay"></div>
+    </div>
+
+    <header>
+        <div class="logo-container" onclick="window.location.href='{% url 'public:profile' %}'">
+            <div class="logo-text">BOND</div>
+            <div class="logo-badge">OLYMPIAD</div>
+        </div>
+
+        <div class="header-actions">
+            <div class="lang-switcher">
+                <span class="lang-btn" data-lang="uz">UZ</span>
+                <span class="lang-divider">|</span>
+                <span class="lang-btn" data-lang="ru">RU</span>
+            </div>
+            <a href="{% url 'public:profile' %}" class="btn-register"
+                style="background: rgba(255,255,255,0.05); box-shadow: none; border: 1px solid var(--glass-border); padding: 8px 18px; text-decoration: none; color: #fff; font-size: 12px; border-radius: 8px; font-weight: 700;">
+                <span data-ru="НАЗАД" data-uz="ORQAGA">ORQAGA</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="payment-container">
+        <div class="payment-card">
+            <div class="payment-header">
+                <span class="payment-icon">💎</span>
+                <h1 class="payment-title" data-ru="Выбор <span>предметов</span>"
+                    data-uz="Fanlarni <span>tanlash</span>">Fanlarni <span>tanlash</span></h1>
+                <p class="payment-desc" data-ru="Выберите предметы и перейдите к оплате"
+                    data-uz="Fanlarni tanlang va to'lovga o'ting">Fanlarni tanlang va to'lovga o'ting</p>
+            </div>
+
+            <div class="course-grid">
+                {% for subject in subjects %}
+                <div class="course-card" data-subject-id="{{ subject.id }}"
+                    data-price="{{ subject.ticket_price|floatformat:0 }}" onclick="toggleCourse(this)">
+                    <div class="course-info">
+                        <h4>{{ subject.name }}</h4>
+                        <div class="course-meta">
+                            <i class="fas fa-trophy"></i> {{ subject.olympiad.event_name }}
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div class="course-price">
+                            <span class="price-val">{{ subject.ticket_price|floatformat:0 }}</span>
+                            <span class="price-label" data-ru="сум" data-uz="so'm">so'm</span>
+                        </div>
+                        <div class="selection-check">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.4);">
+                    <p data-ru="Нет доступных предметов для покупки" data-uz="Sotib olish uchun fanlar mavjud emas">
+                        Sotib olish uchun fanlar mavjud emas</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="total-box" id="total-box">
+                <div class="total-row">
+                    <span class="total-label" data-ru="ИТОГО К ОПЛАТЕ" data-uz="JAMI TO'LOV">JAMI TO'LOV</span>
+                    <span class="total-amount" id="total-amount">0 <small
+                            style="font-size: 14px; opacity: 0.5;">so'm</small></span>
+                </div>
+            </div>
+
+            <div class="payment-actions" id="payment-actions" style="display: none;">
+                <button class="pay-btn btn-payme" onclick="initiatePayment()">
+                    <img src="https://cdn.payme.uz/logo/payme_color.svg" alt="Payme">
+                    PAYME
+                </button>
+                <button class="pay-btn btn-click" onclick="initiateClickPayment()">
+                    <img src="https://m.click.uz/static/img/logo.png" alt="Click">
+                    CLICK
+                </button>
+            </div>
+
+            <div class="security-msg">
+                <i class="fas fa-shield-alt"></i>
+                <span data-ru="Все транзакции защищены" data-uz="Barcha to'lovlar himoyalangan">Barcha to'lovlar
+                    himoyalangan</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Use a more robust initialization to avoid syntax errors
+        const subjectsData = {
+            {% for subject in subjects %}
+        "{{ subject.id }}": parseFloat("{{ subject.ticket_price|floatformat:0 }}") || 0,
+            {% endfor %}
+        };
+
+        let selectedSubjectIds = new Set();
+
+        window.toggleCourse = function (card) {
+            const sid = card.getAttribute('data-subject-id');
+            if (!sid) return;
+
+            if (selectedSubjectIds.has(sid)) {
+                selectedSubjectIds.delete(sid);
+                card.classList.remove('selected');
+            } else {
+                selectedSubjectIds.add(sid);
+                card.classList.add('selected');
+            }
+            updateUI();
+        };
+
+        function updateUI() {
+            let total = 0;
+            selectedSubjectIds.forEach(id => {
+                total += subjectsData[id] || 0;
+            });
+
+            const totalBox = document.getElementById('total-box');
+            const totalAmount = document.getElementById('total-amount');
+            const actions = document.getElementById('payment-actions');
+
+            // Sync with profile.html key: 'selectedLang'
+            const currentLang = localStorage.getItem('selectedLang') || 'uz';
+            const currency = currentLang === 'ru' ? 'сум' : "so'm";
+
+            if (totalBox && totalAmount && actions) {
+                if (selectedSubjectIds.size > 0) {
+                    totalBox.classList.add('visible');
+                    actions.style.display = 'grid';
+                    totalAmount.innerHTML = `${total.toLocaleString()} <small style="font-size: 14px; opacity: 0.5;">${currency}</small>`;
+                } else {
+                    totalBox.classList.remove('visible');
+                    actions.style.display = 'none';
+                }
+            }
+        }
+
+        // Language Logic - Sync with profile.html
+        window.setLanguage = function (lang) {
+            document.querySelectorAll('[data-ru]').forEach(el => {
+                const text = el.getAttribute(`data-${lang}`);
+                if (text) {
+                    if (text.includes('<') && text.includes('>')) {
+                        el.innerHTML = text;
+                    } else {
+                        el.textContent = text;
+                    }
+                }
+            });
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            localStorage.setItem('selectedLang', lang);
+            document.documentElement.lang = lang;
+            updateUI();
+        };
+
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => setLanguage(btn.getAttribute('data-lang')));
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('selectedLang') || 'uz';
+            setLanguage(savedLang);
+
+            // Auto-select based on session or single item
+            const cards = document.querySelectorAll('.course-card');
+            if (cards.length === 1) toggleCourse(cards[0]);
+        });
+
+        window.initiatePayment = async function () {
+            const ids = Array.from(selectedSubjectIds);
+            if (ids.length === 0) return;
+
+            const btn = document.querySelector('.btn-payme');
+            if (!btn) return;
+            const originalHtm = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ...';
+
+            try {
+                const response = await fetch('/api/payment/initiate/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: JSON.stringify({ subject_ids: ids, provider: 'payme' })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    window.location.href = data.pay_url;
+                } else {
+                    alert(data.message || 'Error');
+                }
+            } catch (e) {
+                alert('Connection error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtm;
+            }
+        };
+
+        window.initiateClickPayment = async function () {
+            const ids = Array.from(selectedSubjectIds);
+            if (ids.length === 0) return;
+
+            const btn = document.querySelector('.btn-click');
+            if (!btn) return;
+            const originalHtm = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ...';
+
+            try {
+                const response = await fetch('/api/payment/initiate-click/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: JSON.stringify({ subject_ids: ids, provider: 'click' })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    window.location.href = data.pay_url;
+                } else {
+                    alert(data.message || 'Error');
+                }
+            } catch (e) {
+                alert('Connection error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtm;
+            }
+        };
+    </script>
+</body>
+
+</html>

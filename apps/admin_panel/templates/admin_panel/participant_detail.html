@@ -1,0 +1,390 @@
+{% extends 'admin_panel/base.html' %}
+
+{% block title %}{{ participant.fullname }}{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .detail-header {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .detail-avatar {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: 700;
+    }
+
+    .detail-name {
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .detail-meta {
+        display: flex;
+        gap: 16px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+    }
+
+    .detail-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--gray-400);
+        font-size: 14px;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+    }
+
+    .info-row {
+        display: flex;
+        padding: 16px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        width: 140px;
+        color: var(--gray-400);
+        font-size: 14px;
+    }
+
+    .info-value {
+        flex: 1;
+        font-weight: 500;
+    }
+
+    .status-toggle {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        margin-top: 24px;
+    }
+
+    .toggle-btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .toggle-btn.check-in {
+        background: linear-gradient(135deg, var(--success) 0%, #16a34a 100%);
+        color: white;
+    }
+
+    .toggle-btn.check-out {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--danger);
+    }
+
+    .toggle-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .qr-section {
+        text-align: center;
+        padding: 24px;
+    }
+
+    .qr-placeholder {
+        width: 150px;
+        height: 150px;
+        background: white;
+        border-radius: 12px;
+        margin: 0 auto 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--dark);
+    }
+
+    .download-btn {
+        margin-top: 12px;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--gray-400);
+        text-decoration: none;
+        margin-bottom: 24px;
+        transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+        color: var(--light);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'admin_panel:participants' %}" class="back-link">
+    <i class="fas fa-arrow-left"></i>
+    Ro'yxatga qaytish
+</a>
+
+<div class="detail-header">
+    <div class="detail-avatar">
+        {{ participant.fullname|slice:":1"|upper }}
+    </div>
+    <div>
+        <h1 class="detail-name">{{ participant.fullname }}</h1>
+        <div class="detail-meta">
+            <span class="detail-meta-item">
+                <i class="fas fa-school"></i>
+                {{ participant.school }}
+            </span>
+            <span class="detail-meta-item">
+                <i class="fas fa-graduation-cap"></i>
+                {{ participant.grade }}-sinf
+            </span>
+            {% if participant.subject %}
+            <span class="detail-meta-item">
+                <i class="fas fa-book"></i>
+                {{ participant.subject.name }}
+            </span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="detail-grid">
+    <!-- Personal Info -->
+    <div class="card">
+        <h3 class="card-title">
+            <i class="fas fa-user"></i> Shaxsiy ma'lumotlar
+        </h3>
+
+        <div class="info-row">
+            <span class="info-label">F.I.O</span>
+            <span class="info-value">{{ participant.fullname }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Telefon</span>
+            <span class="info-value">
+                <a href="tel:{{ participant.phone_number }}" style="color: var(--secondary); text-decoration: none;">
+                    {{ participant.phone_number }}
+                </a>
+            </span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Tuman</span>
+            <span class="info-value">{{ participant.district }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Login</span>
+            <span class="info-value" style="font-family: monospace;">{{ participant.username }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Ro'yxatdan o'tish</span>
+            <span class="info-value">{{ participant.created_at|date:"d.m.Y H:i" }}</span>
+        </div>
+    </div>
+
+    <!-- Education Info -->
+    <div class="card">
+        <h3 class="card-title">
+            <i class="fas fa-graduation-cap"></i> Ta'lim
+        </h3>
+
+        <div class="info-row">
+            <span class="info-label">Maktab</span>
+            <span class="info-value">{{ participant.school }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Sinf</span>
+            <span class="info-value">{{ participant.grade }}-sinf</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">O'qituvchi</span>
+            <span class="info-value">{{ participant.teacher_fullname }}</span>
+        </div>
+
+        <div class="info-row">
+            <span class="info-label">Fan</span>
+            <span class="info-value">
+                {% if participant.subject %}
+                <span class="badge badge-success">{{ participant.subject.name }}</span>
+                {% else %}
+                <span style="color: var(--gray-500);">Tanlanmagan</span>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <!-- Check-in Status -->
+    <div class="card">
+        <h3 class="card-title">
+            <i class="fas fa-clipboard-check"></i> Ro'yxatdan o'tish holati
+        </h3>
+
+        <div class="info-row">
+            <span class="info-label">Holat</span>
+            <span class="info-value">
+                {% if participant.is_checked_in %}
+                <span class="badge badge-success">
+                    <i class="fas fa-check-circle"></i> Tadbirga keldi
+                </span>
+                {% else %}
+                <span class="badge badge-warning">
+                    <i class="fas fa-clock"></i> Kutilmoqda
+                </span>
+                {% endif %}
+            </span>
+        </div>
+
+        {% if participant.checked_in_at %}
+        <div class="info-row">
+            <span class="info-label">Belgilash vaqti</span>
+            <span class="info-value">{{ participant.checked_in_at|date:"d.m.Y H:i" }}</span>
+        </div>
+        {% endif %}
+
+        <div class="status-toggle">
+            <span style="flex: 1;">
+                {% if participant.is_checked_in %}
+                Ishtirokchini ro'yxatdan o'chirish?
+                {% else %}
+                Ishtirokchini keldi deb belgilash?
+                {% endif %}
+            </span>
+            <button class="toggle-btn {% if participant.is_checked_in %}check-out{% else %}check-in{% endif %}"
+                onclick="toggleCheckin()">
+                {% if participant.is_checked_in %}
+                <i class="fas fa-times"></i> Bekor qilish
+                {% else %}
+                <i class="fas fa-check"></i> Belgilash
+                {% endif %}
+            </button>
+        </div>
+    </div>
+
+    <!-- Ticket -->
+    <div class="card">
+        <h3 class="card-title">
+            <i class="fas fa-ticket-alt"></i> Chipta
+        </h3>
+
+        <div class="qr-section">
+            <div class="qr-placeholder">
+                <i class="fas fa-qrcode" style="font-size: 64px;"></i>
+            </div>
+            <p style="color: var(--gray-400); font-size: 14px;">ID: {{ participant.id }}</p>
+            <a href="{% url 'public:download_ticket' participant.pk %}" class="btn btn-primary download-btn">
+                <i class="fas fa-download"></i>
+                Chiptani yuklab olish
+            </a>
+        </div>
+    </div>
+
+    <!-- Score Section -->
+    <div class="card" style="grid-column: span 2;">
+        <h3 class="card-title">
+            <i class="fas fa-star"></i> Ishtirokchi bahosi
+        </h3>
+
+        <div
+            style="display: flex; align-items: center; gap: 24px; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 12px;">
+            <div style="flex: 1;">
+                <label style="display: block; color: var(--gray-400); font-size: 14px; margin-bottom: 8px;">Joriy
+                    ball</label>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <input type="number" id="scoreInput" value="{{ participant.score }}" min="0"
+                        style="width: 120px; padding: 12px 16px; font-size: 20px; font-weight: 700; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: var(--light); text-align: center;">
+                    <button class="toggle-btn check-in" onclick="updateScore()" id="saveScoreBtn">
+                        <i class="fas fa-save"></i> Saqlash
+                    </button>
+                    <span id="scoreStatus" style="color: var(--gray-400); font-size: 14px;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+function toggleCheckin() {
+fetch(`/panel/participants/{{ participant.pk }}/checkin/`, {
+method: 'POST',
+headers: {
+'X-CSRFToken': '{{ csrf_token }}',
+'Content-Type': 'application/json'
+}
+})
+.then(response => response.json())
+.then(data => {
+if (data.success) {
+location.reload();
+}
+});
+}
+
+function updateScore() {
+const scoreInput = document.getElementById('scoreInput');
+const scoreStatus = document.getElementById('scoreStatus');
+const saveBtn = document.getElementById('saveScoreBtn');
+
+const score = parseInt(scoreInput.value) || 0;
+
+saveBtn.disabled = true;
+scoreStatus.textContent = 'Saqlanmoqda...';
+
+fetch(`/panel/participants/{{ participant.pk }}/score/`, {
+method: 'POST',
+headers: {
+'X-CSRFToken': '{{ csrf_token }}',
+'Content-Type': 'application/json'
+},
+body: JSON.stringify({ score: score })
+})
+.then(response => response.json())
+.then(data => {
+saveBtn.disabled = false;
+if (data.success) {
+scoreStatus.textContent = '✓ Saqlandi';
+scoreStatus.style.color = '#22c55e';
+setTimeout(() => {
+scoreStatus.textContent = '';
+}, 3000);
+} else {
+scoreStatus.textContent = '✗ Xatolik';
+scoreStatus.style.color = '#ef4444';
+}
+})
+.catch(() => {
+saveBtn.disabled = false;
+scoreStatus.textContent = '✗ Tarmoq xatosi';
+scoreStatus.style.color = '#ef4444';
+});
+}
+{% endblock %}

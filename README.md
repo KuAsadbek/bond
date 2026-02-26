@@ -1,0 +1,1 @@
+gunicorn --workers 3 --bind unix:/home/bond-bot/bond/file.sock config.wsgi:application

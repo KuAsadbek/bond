@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-ru="Подписка на канал | Bond and Data" data-uz="Kanalga obuna | Bond and Data">Подписка на канал | Bond
+        and Data</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 8s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            top: -100px;
+            left: -100px;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            bottom: -50px;
+            right: -50px;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-30px) scale(1.05);
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .lang-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
+            text-align: center;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 0%, #a8b4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .steps {
+            text-align: left;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .step:last-child {
+            border-bottom: none;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .btn-telegram {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            background: linear-gradient(135deg, #0088cc 0%, #00aced 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-bottom: 12px;
+        }
+
+        .btn-telegram:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 136, 204, 0.4);
+        }
+
+        .btn-check {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+        }
+
+        .btn-check:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-check:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 14px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .message.error {
+            background: rgba(244, 67, 54, 0.15);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #ef9a9a;
+            display: block;
+        }
+
+        .message.success {
+            background: rgba(76, 175, 80, 0.15);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #81c784;
+            display: block;
+        }
+
+        .message.warning {
+            background: rgba(255, 193, 7, 0.15);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            color: #ffd54f;
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 30px 25px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+
+    <div class="container">
+        <div class="lang-switcher">
+            <button class="lang-btn active" data-lang="ru" onclick="setLanguage('ru')">Русский</button>
+            <button class="lang-btn" data-lang="uz" onclick="setLanguage('uz')">O'zbek</button>
+        </div>
+
+        <div class="card">
+            <div class="icon">📢</div>
+            <div class="header">
+                <h1 data-ru="Подпишитесь на канал" data-uz="Kanalga obuna bo'ling">Подпишитесь на канал</h1>
+                <p data-ru="Для просмотра билета и рейтинга необходимо подписаться на наш Telegram канал"
+                    data-uz="Chipta va reytingni ko'rish uchun Telegram kanalimizga obuna bo'lishingiz kerak">
+                    Для просмотра билета и рейтинга необходимо подписаться на наш Telegram канал
+                </p>
+            </div>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-text" data-ru="Подпишитесь на канал Bond & Data в Telegram"
+                        data-uz="Telegramda Bond & Data kanaliga obuna bo'ling">
+                        Подпишитесь на канал Bond & Data в Telegram
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-text" data-ru="Перейдите в нашего бота и нажмите Start"
+                        data-uz="Botimizga o'ting va Start tugmasini bosing">
+                        Перейдите в нашего бота и нажмите Start
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-text" data-ru="Вернитесь сюда и нажмите 'Я подписался'"
+                        data-uz="Bu yerga qayting va 'Obuna bo'ldim' tugmasini bosing">
+                        Вернитесь сюда и нажмите "Я подписался"
+                    </div>
+                </div>
+            </div>
+
+            <div id="message" class="message"></div>
+
+            <a href="https://t.me/+Exa5DSk2GCA1NmQy" target="_blank" class="btn-telegram"
+                data-ru="📢 Подписаться на канал" data-uz="📢 Kanalga obuna bo'lish">
+                📢 Подписаться на канал
+            </a>
+
+            <a href="https://t.me/olimp_data_bot?start={{ participant.id }}" target="_blank" class="btn-telegram"
+                style="background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);" data-ru="🤖 Открыть бота"
+                data-uz="🤖 Botni ochish">
+                🤖 Открыть бота
+            </a>
+
+            <button id="checkBtn" class="btn-check" onclick="checkSubscription()" data-ru="✓ Я подписался"
+                data-uz="✓ Obuna bo'ldim">
+                ✓ Я подписался
+            </button>
+
+            <a href="{% url 'public:profile' %}" class="btn-secondary" data-ru="← Вернуться в профиль"
+                data-uz="← Profilga qaytish">
+                ← Вернуться в профиль
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const redirectTo = "{{ redirect_to|default:'ticket' }}";
+
+        function setLanguage(lang) {
+            localStorage.setItem('lang', lang);
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            document.querySelectorAll('[data-ru]').forEach(el => {
+                el.textContent = el.getAttribute('data-' + lang);
+            });
+            const title = document.querySelector('title');
+            if (title && title.hasAttribute('data-' + lang)) {
+                document.title = title.getAttribute('data-' + lang);
+            }
+        }
+
+        async function checkSubscription() {
+            const btn = document.getElementById('checkBtn');
+            const msg = document.getElementById('message');
+            const originalText = btn.textContent;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>';
+            msg.className = 'message';
+            msg.style.display = 'none';
+
+            try {
+                const response = await fetch('{% url "public:check_subscription" %}');
+                const data = await response.json();
+
+                if (data.subscribed) {
+                    msg.className = 'message success';
+                    msg.textContent = localStorage.getItem('lang') === 'uz'
+                        ? "Muvaffaqiyat! Siz kanalga obuna bo'lgansiz. Yo'naltirilmoqda..."
+                        : "Успешно! Вы подписаны на канал. Перенаправление...";
+                    msg.style.display = 'block';
+
+                    setTimeout(() => {
+                        if (redirectTo === 'rating') {
+                            window.location.href = '{% url "public:rating" %}';
+                        } else {
+                            window.location.href = '{% url "public:view_ticket" %}';
+                        }
+                    }, 1500);
+                } else if (data.error === 'no_telegram_id') {
+                    msg.className = 'message warning';
+                    msg.textContent = localStorage.getItem('lang') === 'uz'
+                        ? "Avval botga o'ting va Start tugmasini bosing"
+                        : "Сначала перейдите в бота и нажмите Start";
+                    msg.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                } else {
+                    msg.className = 'message error';
+                    msg.textContent = localStorage.getItem('lang') === 'uz'
+                        ? "Siz hali kanalga obuna bo'lmagansiz"
+                        : "Вы ещё не подписаны на канал";
+                    msg.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                }
+            } catch (error) {
+                msg.className = 'message error';
+                msg.textContent = localStorage.getItem('lang') === 'uz'
+                    ? "Xatolik yuz berdi. Qaytadan urinib ko'ring."
+                    : "Произошла ошибка. Попробуйте снова.";
+                msg.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedLang = localStorage.getItem('lang') || 'ru';
+            setLanguage(savedLang);
+        });
+    </script>
+</body>
+
+</html>
